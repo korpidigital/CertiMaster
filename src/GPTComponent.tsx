@@ -31,10 +31,11 @@ const ChatGPTComponent = () => {
   };
 
   const handleAnswerChange = (option) => {
+    const optionLetter = option.match(/<strong>(.*?)<\/strong>/)[1];
     setUserAnswers(prevAnswers =>
-      prevAnswers.includes(option)
-        ? prevAnswers.filter(a => a !== option)
-        : [...prevAnswers, option]
+      prevAnswers.includes(optionLetter)
+        ? prevAnswers.filter(a => a !== optionLetter)
+        : [...prevAnswers, optionLetter]
     );
   };
 
@@ -45,9 +46,11 @@ const ChatGPTComponent = () => {
   const fetchGeneratedText = async () => {
     setLoading(true);
     try {
-      const prompt = `One Az-204 Multiple-Choice Question with headers 
+      const prompt =
+        `One Az-204 Multiple-Choice Question with headers 
         "Topic", "Question", "Options", "Correct answer" with just a correct alphabet like "A)" or if multiple answers separate with comma like "A), C)" and "Explanation". 
-        Format the output using HTML tags <div> and <h3> for headers and <code> only for code snippets and <li> for options also make option Alphabet like "A)" bold. 
+        Format the output using <div> HTML tag and <h3> for headers and <p> after the header and <code> only for code snippets 
+        and <li> for options also make option Alphabet like "A)" bold with <strong>. Do not use <strong> with Correct answer.
         Include a new test-like question that is detailed and reflective of the actual exam format. 
         Do not add any pre-answer like "Sure here is...". 
         Certification exam often includes questions and answers that feature code snippets and CLI syntax. 
@@ -56,7 +59,7 @@ const ChatGPTComponent = () => {
       const response = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [
-          { role: 'system', content: 'You are an official certification program. You know what kind of questions are asked in the latest official certification tests' },
+          { role: 'system', content: 'You are an official certification program. You know what kind of questions are asked in the latest official certification tests.' },
           { role: 'user', content: prompt }
         ],
         max_tokens: 700
@@ -79,6 +82,7 @@ const ChatGPTComponent = () => {
 
         const topicQuestion = content.slice(0, correctAnswerIndex).trim();
         const answerExplanation = content.slice(correctAnswerIndex).trim();
+        console.log("answerExplanation", answerExplanation);
 
         return { topicQuestion, answerExplanation };
       };
@@ -86,9 +90,13 @@ const ChatGPTComponent = () => {
       const { topicQuestion, answerExplanation } = splitMessageAtCorrectAnswer(messageContent);
 
       // Extract the correct answer for validation later
-      const correctAnswerMatch = answerExplanation.match(/<h3>Correct answer<\/h3>\s*([A-Z])/);
-      const correctAnswer = correctAnswerMatch ? correctAnswerMatch[1].trim() : '';
+      const correctAnswerMatch = answerExplanation.match(/<h3>Correct answer<\/h3>\s*<p>(.*?)<\/p>/);
+      const correctAnswer = correctAnswerMatch ? correctAnswerMatch[1] : '';
 
+      console.log("correct answer match:", correctAnswerMatch);
+      console.log("correct answer:", correctAnswer);
+
+      console.log("_________:", messageContent);
       setGeneratedText(messageContent);
       setTopicQuestion(topicQuestion);
       setAnswerExplanation(answerExplanation);
@@ -103,12 +111,8 @@ const ChatGPTComponent = () => {
   };
 
   const isAnswerCorrect = () => {
-    const correctAnswers = correctAnswer.split(',').map(a => a.trim());
-    console.log(correctAnswer);
-    console.log(userAnswers);
-    return correctAnswers.every(answer =>
-      userAnswers.some(userAnswer => userAnswer.includes(`<li><b>${answer})</b>`))
-    );
+    if (correctAnswer.trim() === userAnswers.toString().trim()) return true;
+    return false;
   };
 
   const renderFeedback = () => {
@@ -150,8 +154,8 @@ const ChatGPTComponent = () => {
               <label key={index}>
                 <input
                   type="checkbox"
-                  value={option}
-                  checked={userAnswers.includes(option)}
+                  value={option.match(/<strong>(.*?)<\/strong>/)[1]}
+                  checked={userAnswers.includes(option.match(/<strong>(.*?)<\/strong>/)[1])}
                   onChange={() => handleAnswerChange(option)}
                 />
                 <span dangerouslySetInnerHTML={{ __html: option }} />
