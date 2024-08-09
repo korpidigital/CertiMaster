@@ -30,7 +30,7 @@ const ChatGPTComponent = () => {
     );
   };
 
-  const handleAnswerChange = (option) => {
+  const handleAnswerChange = (option: string) => {
     const optionLetter = option.match(/<strong>(.*?)<\/strong>/)[1];
     setUserAnswers(prevAnswers =>
       prevAnswers.includes(optionLetter)
@@ -54,12 +54,17 @@ const ChatGPTComponent = () => {
         Include a new test-like question that is detailed and reflective of the actual exam format. 
         Do not add any pre-answer like "Sure here is...". 
         Certification exam often includes questions and answers that feature code snippets and CLI syntax. 
-        Question from one of these topics: ${selectedTopics.join(', ')}`;
+        Question from one of these topics (select it by random, all have the same probability to be chosen): ${selectedTopics.join(', ')}.
+        
+        `;
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o',
+        temperature: 0.5,
         messages: [
-          { role: 'system', content: 'You are an official certification program. You know what kind of questions are asked in the latest official certification tests.' },
+          {
+            role: 'system', content: `You are an official certification program. You know what kind of questions are asked in the latest official certification tests.
+                                     You are able to ask large variety of questions and come up with questions that are not the same twice` },
           { role: 'user', content: prompt }
         ],
         max_tokens: 700
@@ -68,7 +73,7 @@ const ChatGPTComponent = () => {
       const messageContent = response.choices[0].message?.content || 'No response from the model';
 
       // Split the messageContent at the point where "Correct answer" appears
-      const splitMessageAtCorrectAnswer = (content) => {
+      const splitMessageAtCorrectAnswer = (content: string) => {
         const correctAnswerDelimiter = '<h3>Correct answer';
 
         const correctAnswerIndex = content.indexOf(correctAnswerDelimiter);
@@ -91,7 +96,7 @@ const ChatGPTComponent = () => {
 
       // Extract the correct answer for validation later
       const correctAnswerMatch = answerExplanation.match(/<h3>Correct answer<\/h3>\s*<p>(.*?)<\/p>/);
-      const correctAnswer = correctAnswerMatch ? correctAnswerMatch[1] : '';
+      const correctAnswer = correctAnswerMatch ? correctAnswerMatch[1].trim() : '';
 
       console.log("correct answer match:", correctAnswerMatch);
       console.log("correct answer:", correctAnswer);
@@ -149,16 +154,19 @@ const ChatGPTComponent = () => {
       {!loading && topicQuestion && (
         <div>
           <div style={{ textAlign: 'start' }} dangerouslySetInnerHTML={{ __html: topicQuestion.replace(/<ul>.*<\/ul>/s, '') }} />
-          <div style={{ textAlign: 'start' }}>
+          <div style={{ textAlign: 'start', listStyle: 'none' }}>
             {topicQuestion.match(/<li>.*?<\/li>/g)?.map((option, index) => (
               <label key={index}>
-                <input
-                  type="checkbox"
-                  value={option.match(/<strong>(.*?)<\/strong>/)[1]}
-                  checked={userAnswers.includes(option.match(/<strong>(.*?)<\/strong>/)[1])}
-                  onChange={() => handleAnswerChange(option)}
-                />
-                <span dangerouslySetInnerHTML={{ __html: option }} />
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <input
+                    type="checkbox"
+                    value={option.match(/<strong>(.*?)<\/strong>/)[1]}
+                    checked={userAnswers.includes(option.match(/<strong>(.*?)<\/strong>/)[1])}
+                    onChange={() => handleAnswerChange(option)}
+                  />
+                  <span dangerouslySetInnerHTML={{ __html: option }} />
+                </div>
+
               </label>
             ))}
           </div>
