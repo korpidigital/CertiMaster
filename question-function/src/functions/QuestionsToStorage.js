@@ -14,52 +14,87 @@ const account = process.env.STORAGE_ACCOUNT;
 const accountKey = process.env.STORAGE_ACCOUNT_KEY;
 const tableClient = new TableClient(`https://${account}.table.core.windows.net`, tableName, new AzureNamedKeyCredential(account, accountKey));
 
+
+function numCorrect(type) {
+    switch (type) {
+        case 'Standard Question':
+            return 1;
+        case 'True Question':
+            return getRandomInt(1, 4);
+        case 'Scenario-Based':
+            return 4;
+        default:
+            return 0; // or some default value if the type doesn't match any case
+    }
+}
+
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function numCorrect() {
-    return getRandomInt(1, 4);
+function randomLettersAndOrderABCD(numCorrect, numPairs) {
+    const questions = {};
+
+    for (let i = 1; i <= numPairs; i++) {
+        const letters = ['A', 'B', 'C', 'D'];
+        for (let j = letters.length - 1; j > 0; j--) {
+            const k = Math.floor(Math.random() * (j + 1));
+            [letters[j], letters[k]] = [letters[k], letters[j]];
+        }
+        const correctAnswers = letters.slice(0, numCorrect).map(letter => `${letter})`);
+
+        questions[`question${i}`] = correctAnswers;
+    }
+
+    return questions;
 }
 
-function randomLettersAndOrderABCD(numCorrect) {
-    const letters = ['A', 'B', 'C', 'D'];
-    for (let i = letters.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [letters[i], letters[j]] = [letters[j], letters[i]];
+function getQuestionTypeDefinition(type) {
+    switch (type) {
+        case "Standard Question":
+            return "Single correct answer. Order: No.";
+        case "True Question":
+            return "Question is always about selecting true/correct statements. Options have different statements about the topic/subtopic/detail. Can be 1,2,3 or 4 correct answers. Order: No.";
+        case "Scenario-Based":
+            return "Present a scenario in question and steps in options to resolve it. All options have to be part of the answer. Order: Yes.";
+        case "Code-Based":
+            return "Understanding of coding principles in C#, Python, or JavaScript, with code wrapped in single quotes.";
+        case "CLI Commands":
+            return "Azure CLI or PowerShell tasks with code wrapped in single quotes.";
+        default:
+            return "Unknown question type.";
     }
-    const correctAnswers = letters.slice(0, numCorrect).map(letter => `${letter})`);
-
-    return correctAnswers;
-
 }
 
 
 async function generateQA(certification, topic, subtopic, detail, type, numPairs) {
-    const numCorrectAnswers = numCorrect();
-    const correctAnswersOrder = randomLettersAndOrderABCD(numCorrectAnswers);
+    const numCorrectAnswers = numCorrect(type);
+    const correctAnswersOrder = randomLettersAndOrderABCD(numCorrectAnswers, numPairs);
+    const questionTypeDefinition = getQuestionTypeDefinition(type);
+
+    // Question types:
+    // - Standard Question: Single correct answer. Order: No.
+    // - True Question: Select the true. Can be 1,2,3 or 4 correct answers. Order: No.
+    // - Scenario-Based: Present a scenario in question and steps in options to resolve it. All options have to be part of the answer. Order: Yes.
+    // - Code-Based: Understanding of coding principles in C#, Python, or JavaScript, with code wrapped in single quotes.
+    // - CLI Commands: Azure CLI or PowerShell tasks with code wrapped in single quotes.
 
 
     const prompt = `Generate ${numPairs} unique and diverse questions for a certification exam in JSON format.
-    Certification: ${certification}
-    Topic: ${topic}
-    Subtopic: ${subtopic}
-    Detail: ${detail}
-    Question type: ${type}
-    Question types:
-    - Multiple Choice: Single or multiple correct answers.
-    - Scenario-Based: Present a scenario with steps to resolve it, requiring ordered steps with varied and randomized orders.
-    - Code-Based: Understanding of coding principles in C#, Python, or JavaScript, with code wrapped in single quotes 'code'.
-    - CLI Commands: Azure CLI or PowerShell tasks with code wrapped in single quotes.
-    
-    Do the question so that these commands are true:
-        - How many correct answers: ${numCorrectAnswers}
-        - Correct answer letters and order: ${correctAnswersOrder}
+    Certification: ${certification}.
+    Topic: ${topic}.
+    Subtopic: ${subtopic}.
+    Detail: ${detail}.
+    Question type: ${type}.
+    Question type definition: ${questionTypeDefinition}
+    Number of correct answers: ${numCorrectAnswers}.
+    Put correct answers in these letters and in this order (correctAnswersOrder): ${JSON.stringify(correctAnswersOrder)}.
     
     Output only the questions in JSON format without introductory text in a format like below. JSON objects in array like [{<question1>},{<question2>}]
 
     "order": "Yes"/"No" - field is telling if question needs to be answered in specific order.
-    
+    "explanation": "" - field is telling WHY the correct answer is correct and giving useful details about it. 
+    "correctAnswer": [""], - array of prefixes of correct answers. Value of correctAnswersOrder from right question key.
     Format:
     [
         {
@@ -69,7 +104,7 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
         "detail": "${detail}",
         "question": "",
         "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
-        "correctAnswer": ${JSON.stringify(correctAnswersOrder)},
+        "correctAnswer": [""],
         "explanation": "",
         "order": "Yes"/"No"
         },
@@ -105,10 +140,10 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
                     content: prompt
                 }
             ],
-            max_tokens: 4096,
+            max_tokens: 4096, // literally max
             n: 1,
             stop: null,
-            temperature: 0.7
+            temperature: 0.5
         })
     });
 
@@ -139,7 +174,7 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
 
 async function saveToTableStorage(item) {
     const entity = {
-        partitionKey: 'AZ-204',
+        partitionKey: item.certification,
         rowKey: item.id,
         certification: item.certification,
         topic: item.topic,
@@ -150,7 +185,8 @@ async function saveToTableStorage(item) {
         options: JSON.stringify(item.options),
         correctAnswer: JSON.stringify(item.correctAnswer),
         explanation: item.explanation,
-        order: item.order
+        order: item.order,
+        approval: item.approval
     };
     await tableClient.createEntity(entity);
 }
@@ -179,7 +215,8 @@ async function generateAllQuestionsFromFile(filePath, numPairs) {
                             options: qaPair.options,
                             correctAnswer: qaPair.correctAnswer,
                             explanation: qaPair.explanation,
-                            order: qaPair.order
+                            order: qaPair.order,
+                            approved: false
                         };
 
                         if (isLocal) {
@@ -233,7 +270,8 @@ app.http('QuestionsToStorage', {
                         options: qaPair.options,
                         correctAnswer: qaPair.correctAnswer,
                         explanation: qaPair.explanation,
-                        order: qaPair.order
+                        order: qaPair.order,
+                        approved: false
                     };
 
                     if (isLocal) {

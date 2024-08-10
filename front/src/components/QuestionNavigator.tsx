@@ -84,9 +84,14 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
 
     const handleOptionSelect = (option: string) => {
         if (currentSubmissionState) return; // Disable selection after submission
-        const updatedSelectedOptions = selectedOptions.includes(option)
-            ? selectedOptions.filter(o => o !== option)
-            : [...selectedOptions, option];
+
+        let updatedSelectedOptions;
+        if (selectedOptions.includes(option)) {
+            updatedSelectedOptions = selectedOptions.filter(o => o !== option);
+        } else {
+            updatedSelectedOptions = [...selectedOptions, option];
+        }
+
         const updatedSelectedOptionsPerQuestion = [...selectedOptionsPerQuestion];
         updatedSelectedOptionsPerQuestion[currentIndex] = updatedSelectedOptions;
         setSelectedOptionsPerQuestion(updatedSelectedOptionsPerQuestion);
@@ -95,13 +100,20 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
     const keepPrefix = (option: string) => option.match(/^[A-D]\)/)?.[0] || '';
 
     const handleSubmit = () => {
-        const isCorrect = selectedOptions
-            .map(option => keepPrefix(option)) // Keep only the prefix of the selected options
-            .sort()
-            .join() === correctAnswer
-            .map(answer => keepPrefix(answer)) // Keep only the prefix of the correct answers
-            .sort()
-            .join();
+        let selected = selectedOptions.map(option => keepPrefix(option));
+        let correct = correctAnswer.map(answer => keepPrefix(answer));
+
+        if (currentQuestion.order === "No") {
+            selected = selected.sort();
+            correct = correct.sort();
+        }
+
+        console.log(selected);
+        console.log("VS");
+        console.log(correct);
+
+        const isCorrect = selected.join() === correct.join();
+
         const updatedSubmissionState = [...questionSubmissionState];
         updatedSubmissionState[currentIndex] = isCorrect ? 'correct' : 'wrong';
         setQuestionSubmissionState(updatedSubmissionState);
@@ -162,10 +174,23 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
                                     onClick={() => handleOptionSelect(option)}
                                     style={{
                                         cursor: currentSubmissionState ? 'not-allowed' : 'pointer',
-                                        border: selectedOptions.includes(option) ? '2px solid #4CAF50' : 'none'
+                                        border: selectedOptions.includes(option) ? '2px solid #4CAF50' : '1px solid #ddd',
+                                        backgroundColor: selectedOptions.includes(option) ? '#e0f7fa' : 'transparent',
+                                        color: selectedOptions.includes(option) ? '#00796b' : '',
+                                        boxShadow: selectedOptions.includes(option) ? '0px 4px 8px rgba(0, 0, 0, 0.2)' : 'none',
+                                        transform: selectedOptions.includes(option) ? 'scale(1.05)' : 'none',
+                                        transition: 'all 0.3s ease',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        marginBottom: '8px'
                                     }}
                                 >
-                                    {option}
+                                    <strong>{option.slice(0, 2)}</strong>{option.slice(2)}
+                                    {currentQuestion.order === "Yes" && selectedOptions.includes(option) && (
+                                        <span className="optionOrderNumber">
+                                            {selectedOptions.indexOf(option) + 1}
+                                        </span>
+                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -191,12 +216,36 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
                     <>
                         <div className='questionItem'>
                             <strong>Your Answer:</strong>
-                            <div className='questionContent'>{selectedOptions.map(keepPrefix).join(', ')}</div>
+                            <div className='questionContent'>
+                                {selectedOptions.map((option, index) => (
+                                    <span key={index}>
+                                        {keepPrefix(option)}
+                                        {currentQuestion.order === "Yes" && (
+                                            <span style={{ marginLeft: '5px', fontWeight: 'bold', color: '#ff9800' }}>
+                                                {index + 1}
+                                            </span>
+                                        )}
+                                        {index < selectedOptions.length - 1 ? ', ' : ''}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
 
                         <div className='questionItem'>
                             <strong>Correct Answer:</strong>
-                            <div className='questionContent'>{correctAnswer.map(keepPrefix).join(', ')}</div>
+                            <div className='questionContent'>
+                                {correctAnswer.map((option, index) => (
+                                    <span key={index}>
+                                        {keepPrefix(option)}
+                                        {currentQuestion.order === "Yes" && (
+                                            <span style={{ marginLeft: '5px', fontWeight: 'bold', color: '#4CAF50' }}>
+                                                {index + 1}
+                                            </span>
+                                        )}
+                                        {index < correctAnswer.length - 1 ? ', ' : ''}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
 
                         <div className='questionItem'>

@@ -17,6 +17,7 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     position: relative;
+    min-height: 220px;
 }
 
 .questionNumber {
@@ -84,8 +85,8 @@ body {
 }
 
 .questionContent ul {
-    list-style-type: disc;
-    padding-left: 20px; /* Indents the list for better readability */
+    list-style-type: none;
+    padding-left: 0px; /* Indents the list for better readability */
 }
 
 .questionContent li {
@@ -158,4 +159,54 @@ body {
     60% {
         transform: translateY(-10px);
     }
+}
+
+.submissionResult {
+    font-size: 2rem; /* Increase the font size */
+    font-weight: bold; /* Make the text bold */
+    text-align: center; /* Center the text */
+    margin-top: 20px; /* Add some margin at the top */
+}
+
+.submissionResult.correct {
+    color: #4CAF50; /* Green color for correct answers */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add subtle shadow for better visibility */
+    animation: popIn 0.3s ease-out; /* Add a small pop-in animation */
+}
+
+.submissionResult.wrong {
+    color: #f44336; /* Red color for wrong answers */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add subtle shadow for better visibility */
+    animation: shake 0.3s ease-out; /* Add a small shake animation */
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20%, 60% {
+        transform: translateX(-10px);
+    }
+    40%, 80% {
+        transform: translateX(10px);
+    }
+}
+
+.optionOrderNumber {
+    margin-left: 10px;
+    font-weight: bold;
+    color: #ff9800; /* Orange color to make it stand out */
+    font-size: 1.5rem; /* Increase the font size */
+    vertical-align: middle; /* Aligns the number vertically with the option text */
 }

@@ -1,7 +1,8 @@
 {
     "Certification": "AZ-204",
     "Types": [
-      "Multiple Choice",
+      "Standard Question",
+      "True Question",
       "Scenario-Based",
       "Code-Based",
       "CLI Commands"
