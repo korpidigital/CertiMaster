@@ -3,8 +3,6 @@ import { useAtom } from 'jotai';
 import { QuestionNavigator } from './QuestionNavigator';
 import { certificationAtom, questionsAtom, loadingAtom, errorAtom } from '../atoms';
 
-
-
 const GetQuestionsComponent: React.FC = () => {
     const [certification, setCertification] = useAtom(certificationAtom);
     const [questions, setQuestions] = useAtom(questionsAtom);
