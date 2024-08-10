@@ -195,8 +195,11 @@ async function generateAllQuestionsFromFile(filePath, numPairs) {
     }
 }
 
+///////////////// QuestionsToStorage Function /////////////////////////////////////
+// POST
+
 app.http('QuestionsToStorage', {
-    methods: ['GET', 'POST'],
+    methods: ['POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
         context.log(`HTTP function processed request for URL "${request.url}"`);
@@ -229,7 +232,8 @@ app.http('QuestionsToStorage', {
                         question: qaPair.question,
                         options: qaPair.options,
                         correctAnswer: qaPair.correctAnswer,
-                        explanation: qaPair.explanation
+                        explanation: qaPair.explanation,
+                        order: qaPair.order
                     };
 
                     if (isLocal) {
