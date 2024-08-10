@@ -1,0 +1,83 @@
+/* QuestionNavigator.css */
+
+.questionInfo {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+.questionText {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the strong elements horizontally */
+    margin-bottom: 20px;
+}
+
+.questionItem {
+    width: 100%; /* Ensures that each item takes full width */
+    text-align: center; /* Centers the strong element horizontally */
+    margin-bottom: 10px;
+}
+
+.questionItem strong {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px; /* Adds some space between the strong element and its content */
+}
+
+.questionContent {
+    text-align: left; /* Aligns the content to the left */
+    margin-left: 20px; /* Adds a bit of left padding for better readability */
+    display: block;
+}
+
+.questionContent ul {
+    list-style-type: disc;
+    padding-left: 20px; /* Indents the list for better readability */
+}
+
+.questionContent li {
+    margin-bottom: 5px; /* Adds some space between list items */
+}
+
+.navigationButtons {
+    margin-top: 20px;
+}
+
+.navigationButtons, .actionButtons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.button {
+    padding: 10px 15px;
+    margin: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.approveButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.deleteButton {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}
+
+.button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.approvedCheckmark {
+    color: green;
+    font-size: 1.5rem;
+    margin-left: 10px;
+}
+

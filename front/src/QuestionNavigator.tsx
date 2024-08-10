@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import './QuestionNavigator.css'; // Ensure the path is correct
 
-// Define the structure of a question
 interface Question {
     id: string;
     certification: string;
@@ -13,13 +13,16 @@ interface Question {
     correctAnswer: string[];
     explanation: string;
     order: string;
+    approved: boolean;
 }
 
 interface QuestionNavigatorProps {
     questions: Question[];
+    onApprove: (id: string) => void; // Callback for approving a question
+    onDelete: (id: string, certification: string) => void; // Callback for deleting a question
 }
 
-export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions }) => {
+export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions, onApprove, onDelete }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const totalQuestions = questions.length;
@@ -67,40 +70,73 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions 
         }
     };
 
+    const handleApprove = () => {
+        onApprove(currentQuestion.id);
+    };
+
+    const handleDelete = () => {
+        onDelete(currentQuestion.id, currentQuestion.certification);
+    };
+
     return (
         <div>
-            <h2>
-                Question {currentIndex + 1} of {totalQuestions}
-            </h2>
-            <div>
-                <strong>Question:</strong> {currentQuestion.question}
-                <br />
+            <div className='questionInfo'>
                 <strong>Topic:</strong> {currentQuestion.topic || 'N/A'}
-                <br />
                 <strong>Subtopic:</strong> {currentQuestion.subtopic || 'N/A'}
-                <br />
                 <strong>Detail:</strong> {currentQuestion.detail || 'N/A'}
-                <br />
                 <strong>Type:</strong> {currentQuestion.type || 'N/A'}
-                <br />
-                <strong>Options:</strong>
-                <ul>
-                    {options.map((option, optionIndex) => (
-                        <li key={optionIndex}>{option}</li>
-                    ))}
-                </ul>
-                <strong>Correct Answer:</strong> {correctAnswer.join(', ')}
-                <br />
-                <strong>Explanation:</strong> {currentQuestion.explanation || 'N/A'}
-                <br />
-                <strong>Order:</strong> {currentQuestion.order || 'N/A'}
+                <strong>Question:</strong> {currentIndex + 1} of {totalQuestions}
+                {currentQuestion.approved && <span className="approvedCheckmark">✔️</span>}
             </div>
-            <div style={{ marginTop: '20px' }}>
-                <button onClick={handleBack} disabled={currentIndex === 0}>
+
+            <div className='questionText'>
+                <div className='questionItem'>
+                    <strong>Question:</strong>
+                    <div className='questionContent'>{currentQuestion.question}</div>
+                </div>
+
+                <div className='questionItem'>
+                    <strong>Options:</strong>
+                    <div className='questionContent'>
+                        <ul>
+                            {options.map((option, optionIndex) => (
+                                <li key={optionIndex}>{option}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+
+                <div className='questionItem'>
+                    <strong>Correct Answer:</strong>
+                    <div className='questionContent'>{correctAnswer.join(', ')}</div>
+                </div>
+
+                <div className='questionItem'>
+                    <strong>Explanation:</strong>
+                    <div className='questionContent'>{currentQuestion.explanation || 'N/A'}</div>
+                </div>
+
+                <div className='questionItem'>
+                    <strong>Order:</strong>
+                    <div className='questionContent'>{currentQuestion.order || 'N/A'}</div>
+                </div>
+            </div>
+
+            <div className='navigationButtons'>
+                <button className='button' onClick={handleBack} disabled={currentIndex === 0}>
                     Back
                 </button>
-                <button onClick={handleNext} disabled={currentIndex === totalQuestions - 1}>
+                <button className='button' onClick={handleNext} disabled={currentIndex === totalQuestions - 1}>
                     Next
+                </button>
+            </div>
+
+            <div className='actionButtons'>
+                <button className='button approveButton' onClick={handleApprove} disabled={currentQuestion.approved}>
+                    {currentQuestion.approved ? 'Approved' : 'Approve'}
+                </button>
+                <button className='button deleteButton' onClick={handleDelete}>
+                    Delete
                 </button>
             </div>
         </div>
