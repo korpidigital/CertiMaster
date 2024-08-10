@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './QuestionNavigator.css'; // Ensure the path is correct
+import { useAtom } from 'jotai';
+import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom } from '../atoms'; // Import your atoms
 import { Question } from '../interfaces/question';
 
 interface QuestionNavigatorProps {
@@ -9,12 +11,26 @@ interface QuestionNavigatorProps {
 }
 
 export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions, onApprove, onDelete }) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [currentIndex, setCurrentIndex] = React.useState(0);
+    const [selectedOptionsPerQuestion, setSelectedOptionsPerQuestion] = useAtom(selectedOptionsPerQuestionAtom);
+    const [questionSubmissionState, setQuestionSubmissionState] = useAtom(questionSubmissionStateAtom);
 
     const totalQuestions = questions.length;
     const currentQuestion = questions[currentIndex];
 
-    console.log(currentQuestion);
+    // Initialize the selected options and submission state for each question
+    React.useEffect(() => {
+        if (selectedOptionsPerQuestion.length === 0) {
+            setSelectedOptionsPerQuestion(new Array(totalQuestions).fill([]));
+        }
+        if (questionSubmissionState.length === 0) {
+            setQuestionSubmissionState(new Array(totalQuestions).fill(null));
+        }
+    }, [totalQuestions, selectedOptionsPerQuestion, setSelectedOptionsPerQuestion, questionSubmissionState, setQuestionSubmissionState]);
+
+    // Ensure the selectedOptions array exists for the current question
+    const selectedOptions = selectedOptionsPerQuestion[currentIndex] || [];
+    const currentSubmissionState = questionSubmissionState[currentIndex];
 
     // Parse options and correctAnswer
     let options = currentQuestion.options;
@@ -66,15 +82,48 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
         onDelete(currentQuestion.id, currentQuestion.certification);
     };
 
+    const handleOptionSelect = (option: string) => {
+        if (currentSubmissionState) return; // Disable selection after submission
+        const updatedSelectedOptions = selectedOptions.includes(option)
+            ? selectedOptions.filter(o => o !== option)
+            : [...selectedOptions, option];
+        const updatedSelectedOptionsPerQuestion = [...selectedOptionsPerQuestion];
+        updatedSelectedOptionsPerQuestion[currentIndex] = updatedSelectedOptions;
+        setSelectedOptionsPerQuestion(updatedSelectedOptionsPerQuestion);
+    };
+
+    const keepPrefix = (option: string) => option.match(/^[A-D]\)/)?.[0] || '';
+
+    const handleSubmit = () => {
+        const isCorrect = selectedOptions
+            .map(option => keepPrefix(option)) // Keep only the prefix of the selected options
+            .sort()
+            .join() === correctAnswer
+            .map(answer => keepPrefix(answer)) // Keep only the prefix of the correct answers
+            .sort()
+            .join();
+        const updatedSubmissionState = [...questionSubmissionState];
+        updatedSubmissionState[currentIndex] = isCorrect ? 'correct' : 'wrong';
+        setQuestionSubmissionState(updatedSubmissionState);
+    };
+
     return (
         <div>
             <div className='questionInfo'>
-                <strong>Topic:</strong> {currentQuestion.topic || 'N/A'}
-                <strong>Subtopic:</strong> {currentQuestion.subtopic || 'N/A'}
-                <strong>Detail:</strong> {currentQuestion.detail || 'N/A'}
-                <strong>Type:</strong> {currentQuestion.type || 'N/A'}
-                <strong>Question:</strong> {currentIndex + 1} of {totalQuestions}
-                {currentQuestion.approved && <span className="approvedCheckmark">✔️</span>}
+                <div className="infoBlock">
+                    <div className="infoItem">
+                        <strong>Topic:</strong> {currentQuestion.topic || 'N/A'}
+                    </div>
+                    <div className="infoItem">
+                        <strong>Subtopic:</strong> {currentQuestion.subtopic || 'N/A'}
+                    </div>
+                    <div className="infoItem">
+                        <strong>Detail:</strong> {currentQuestion.detail || 'N/A'}
+                    </div>
+                    <div className="infoItem">
+                        <strong>Type:</strong> {currentQuestion.type || 'N/A'}
+                    </div>
+                </div>
             </div>
             <div className='actionButtons'>
                 <button className='button approveButton' onClick={handleApprove} disabled={currentQuestion.approved}>
@@ -88,6 +137,10 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
                 <button className='button' onClick={handleBack} disabled={currentIndex === 0}>
                     Back
                 </button>
+                <div className="questionNumber">
+                    <strong>Question:</strong> {currentIndex + 1} of {totalQuestions}
+                    {currentQuestion.approved && <span className="approvedCheckmark">✔️</span>}
+                </div>
                 <button className='button' onClick={handleNext} disabled={currentIndex === totalQuestions - 1}>
                     Next
                 </button>
@@ -103,21 +156,55 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
                     <div className='questionContent'>
                         <ul>
                             {options.map((option, optionIndex) => (
-                                <li key={optionIndex}>{option}</li>
+                                <li
+                                    key={optionIndex}
+                                    className={selectedOptions.includes(option) ? 'selectedOption' : ''}
+                                    onClick={() => handleOptionSelect(option)}
+                                    style={{
+                                        cursor: currentSubmissionState ? 'not-allowed' : 'pointer',
+                                        border: selectedOptions.includes(option) ? '2px solid #4CAF50' : 'none'
+                                    }}
+                                >
+                                    {option}
+                                </li>
                             ))}
                         </ul>
                     </div>
                 </div>
 
                 <div className='questionItem'>
-                    <strong>Correct Answer:</strong>
-                    <div className='questionContent'>{correctAnswer.join(', ')}</div>
+                    <button
+                        className='button submitButton'
+                        onClick={handleSubmit}
+                        disabled={selectedOptions.length === 0 || currentSubmissionState !== null}
+                    >
+                        Submit
+                    </button>
+                    {currentSubmissionState && (
+                        <div className={`submissionResult ${currentSubmissionState}`}>
+                            {currentSubmissionState === 'correct' ? 'Correct!' : 'Wrong!'}
+                        </div>
+                    )}
                 </div>
 
-                <div className='questionItem'>
-                    <strong>Explanation:</strong>
-                    <div className='questionContent'>{currentQuestion.explanation || 'N/A'}</div>
-                </div>
+                {currentSubmissionState && (
+                    <>
+                        <div className='questionItem'>
+                            <strong>Your Answer:</strong>
+                            <div className='questionContent'>{selectedOptions.map(keepPrefix).join(', ')}</div>
+                        </div>
+
+                        <div className='questionItem'>
+                            <strong>Correct Answer:</strong>
+                            <div className='questionContent'>{correctAnswer.map(keepPrefix).join(', ')}</div>
+                        </div>
+
+                        <div className='questionItem'>
+                            <strong>Explanation:</strong>
+                            <div className='questionContent'>{currentQuestion.explanation || 'N/A'}</div>
+                        </div>
+                    </>
+                )}
 
                 <div className='questionItem'>
                     <strong>Order:</strong>

@@ -1,10 +1,53 @@
 /* QuestionNavigator.css */
 
+body {
+    font-family: 'Poppins', sans-serif; /* Use a modern and clean font */
+    background-color: #282c34; /* Dark background for a sleek, modern look */
+    color: #ffffff; /* Light text color for contrast */
+}
+
 .questionInfo {
     margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #00bcd4 0%, #b3e5fc 100%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+}
+
+.questionNumber {
+    top: 300px;
+    right: -30px;
+    padding: 8px 15px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.infoBlock {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.infoItem {
+    flex: 1 1 45%; /* Items take up roughly half the width of the container */
+    margin: 10px 0;
+    color: #34495e;
+}
+
+.infoItem strong {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 1.3rem;
 }
 
 .questionText {
@@ -12,24 +55,32 @@
     flex-direction: column;
     align-items: center; /* Centers the strong elements horizontally */
     margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #1e1e2e;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .questionItem {
     width: 100%; /* Ensures that each item takes full width */
     text-align: center; /* Centers the strong element horizontally */
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .questionItem strong {
     display: block;
     font-weight: bold;
-    margin-bottom: 5px; /* Adds some space between the strong element and its content */
+    margin-bottom: 10px; /* Adds some space between the strong element and its content */
+    color: #ffd700; /* Gold color to make the labels stand out */
+    font-size: 1.3rem;
 }
 
 .questionContent {
     text-align: left; /* Aligns the content to the left */
     margin-left: 20px; /* Adds a bit of left padding for better readability */
     display: block;
+    color: #b0c4de; /* Light steel blue for readability */
+    font-size: 1rem;
 }
 
 .questionContent ul {
@@ -38,24 +89,29 @@
 }
 
 .questionContent li {
-    margin-bottom: 5px; /* Adds some space between list items */
-}
-
-.navigationButtons {
-    margin-top: 20px;
+    margin-bottom: 8px; /* Adds some space between list items */
 }
 
 .navigationButtons, .actionButtons {
     margin-top: 20px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around; /* Space the buttons out evenly */
 }
 
 .button {
-    padding: 10px 15px;
+    padding: 12px 20px;
     margin: 5px;
     font-size: 1rem;
     cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.button:hover {
+    transform: scale(1.05); /* Slightly increase the size of the button on hover */
 }
 
 .approveButton {
@@ -64,20 +120,42 @@
     border: none;
 }
 
+.approveButton:hover {
+    background-color: #45a049;
+}
+
 .deleteButton {
     background-color: #f44336;
     color: white;
     border: none;
 }
 
+.deleteButton:hover {
+    background-color: #e53935;
+}
+
 .button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 .approvedCheckmark {
-    color: green;
-    font-size: 1.5rem;
+    color: #ffd700; /* Gold color for the checkmark */
+    font-size: 1.8rem;
     margin-left: 10px;
+    vertical-align: middle;
+    animation: bounce 1s ease normal;
 }
 
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-15px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
