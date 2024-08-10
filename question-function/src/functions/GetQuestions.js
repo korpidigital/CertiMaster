@@ -50,7 +50,8 @@ app.http('GetQuestions', {
                     options: options,
                     correctAnswer: correctAnswer,
                     explanation: entity.explanation,
-                    order: entity.order
+                    order: entity.order,
+                    approved: entity.approved
                 };
 
                 questions.push(question);

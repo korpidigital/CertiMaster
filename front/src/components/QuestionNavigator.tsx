@@ -28,6 +28,8 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
     const totalQuestions = questions.length;
     const currentQuestion = questions[currentIndex];
 
+    console.log(currentQuestion);
+
     // Parse options and correctAnswer
     let options = currentQuestion.options;
     let correctAnswer = currentQuestion.correctAnswer;

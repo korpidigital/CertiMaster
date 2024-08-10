@@ -1,6 +1,6 @@
 // import { useState } from 'react'
 import './App.css'
-import ChatGPTComponent from './QuestionsComponent'
+import ChatGPTComponent from './components/QuestionsComponent'
 
 function App() {
   return (

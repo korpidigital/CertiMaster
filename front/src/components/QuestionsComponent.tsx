@@ -1,26 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAtom } from 'jotai';
 import { QuestionNavigator } from './QuestionNavigator';
+import { certificationAtom, questionsAtom, loadingAtom, errorAtom } from '../atoms';
 
-interface Question {
-    id: string;
-    certification: string;
-    topic: string;
-    subtopic: string;
-    detail: string;
-    type: string;
-    question: string;
-    options: string[];
-    correctAnswer: string[];
-    explanation: string;
-    order: string;
-    approved: boolean;
-}
+
 
 const GetQuestionsComponent: React.FC = () => {
-    const [certification, setCertification] = useState<string>('');
-    const [questions, setQuestions] = useState<Question[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    const [certification, setCertification] = useAtom(certificationAtom);
+    const [questions, setQuestions] = useAtom(questionsAtom);
+    const [loading, setLoading] = useAtom(loadingAtom);
+    const [error, setError] = useAtom(errorAtom);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setCertification(e.target.value);
