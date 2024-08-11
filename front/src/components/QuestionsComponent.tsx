@@ -1,49 +1,16 @@
 import React from 'react';
 import { useAtom } from 'jotai';
 import { QuestionNavigator } from './QuestionNavigator';
-import { certificationAtom, questionsAtom, loadingAtom, errorAtom } from '../atoms';
+import { questionsAtom, loadingAtom, errorAtom } from '../atoms';
+import SelectCertificationQuestions from './SelectCertificationQuestions';
 
 const GetQuestionsComponent: React.FC = () => {
-    const [certification, setCertification] = useAtom(certificationAtom);
     const [questions, setQuestions] = useAtom(questionsAtom);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [loading, setLoading] = useAtom(loadingAtom);
     const [error, setError] = useAtom(errorAtom);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCertification(e.target.value);
-    };
 
-    const fetchQuestions = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const response = await fetch(`http://localhost:7071/api/GetQuestions?certification=${encodeURIComponent(certification)}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                try {
-                    const data = await response.json();
-                    console.log('Parsed data:', data);
-                    setQuestions(data);
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                    setError('Failed to parse response as JSON');
-                }
-            } else {
-                const errorText = await response.text();
-                setError(`Error: ${response.status} - ${errorText}`);
-            }
-        } catch (err) {
-            setError(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleApprove = async (id: string) => {
         // Get the current question to determine the new approved value
@@ -119,16 +86,8 @@ const GetQuestionsComponent: React.FC = () => {
 
     return (
         <div>
-            <h1>Get Questions for Certification</h1>
-            <input
-                type="text"
-                value={certification}
-                onChange={handleInputChange}
-                placeholder="Enter Certification"
-            />
-            <button onClick={fetchQuestions} disabled={!certification || loading}>
-                {loading ? 'Loading...' : 'Get Questions'}
-            </button>
+            <SelectCertificationQuestions />
+            {loading ? 'Loading...' : ''}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {questions.length > 0 && (
                 <QuestionNavigator
