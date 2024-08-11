@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { Question } from '../interfaces/question';
+import { Question } from '../interfaces';
 
 const questionsAtom = atom<Question[]>([]);
 

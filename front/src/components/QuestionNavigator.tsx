@@ -1,13 +1,13 @@
 import React from 'react';
 import './QuestionNavigator.css'; // Ensure the path is correct
 import { useAtom } from 'jotai';
-import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom } from '../atoms'; // Import your atoms
-import { Question } from '../interfaces/question';
+import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom } from '../atoms';
+import { Question } from '../interfaces';
 
 interface QuestionNavigatorProps {
     questions: Question[];
-    onApprove: (id: string) => void; // Callback for approving a question
-    onDelete: (id: string, certification: string) => void; // Callback for deleting a question
+    onApprove: (id: string) => void;
+    onDelete: (id: string, certification: string) => void;
 }
 
 export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions, onApprove, onDelete }) => {
@@ -28,7 +28,6 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
         }
     }, [totalQuestions, selectedOptionsPerQuestion, setSelectedOptionsPerQuestion, questionSubmissionState, setQuestionSubmissionState]);
 
-    // Ensure the selectedOptions array exists for the current question
     const selectedOptions = selectedOptionsPerQuestion[currentIndex] || [];
     const currentSubmissionState = questionSubmissionState[currentIndex];
 
@@ -41,12 +40,12 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
             options = JSON.parse(options);
         } catch (e) {
             console.error('Error parsing options:', e);
-            options = [];  // fallback to empty array
+            options = [];
         }
     }
     if (!Array.isArray(options)) {
         console.error('Options is not an array:', options);
-        options = [];  // fallback to empty array
+        options = [];
     }
 
     if (typeof correctAnswer === 'string') {
@@ -54,12 +53,12 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
             correctAnswer = JSON.parse(correctAnswer);
         } catch (e) {
             console.error('Error parsing correctAnswer:', e);
-            correctAnswer = [];  // fallback to empty array
+            correctAnswer = [];
         }
     }
     if (!Array.isArray(correctAnswer)) {
         console.error('CorrectAnswer is not an array:', correctAnswer);
-        correctAnswer = [];  // fallback to empty array
+        correctAnswer = [];
     }
 
     const handleNext = () => {
@@ -83,7 +82,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
     };
 
     const handleOptionSelect = (option: string) => {
-        if (currentSubmissionState) return; // Disable selection after submission
+        if (currentSubmissionState) return;
 
         let updatedSelectedOptions;
         if (selectedOptions.includes(option)) {
@@ -107,10 +106,6 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
             selected = selected.sort();
             correct = correct.sort();
         }
-
-        console.log(selected);
-        console.log("VS");
-        console.log(correct);
 
         const isCorrect = selected.join() === correct.join();
 

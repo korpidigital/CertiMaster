@@ -1,32 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAtom } from 'jotai';
 import { QuestionNavigator } from './QuestionNavigator';
 import { questionsAtom, loadingAtom, errorAtom } from '../atoms';
 import SelectCertificationQuestions from './SelectCertificationQuestions';
+import { Question } from '../interfaces';
 
 const GetQuestionsComponent: React.FC = () => {
-    const [questions, setQuestions] = useAtom(questionsAtom);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [loading, setLoading] = useAtom(loadingAtom);
-    const [error, setError] = useAtom(errorAtom);
+    const [questions] = useAtom(questionsAtom); // Fetched questions
+    const [loading] = useAtom(loadingAtom);
+    const [error] = useAtom(errorAtom);
+    const [showQuestions, setShowQuestions] = useState(false); // Control visibility of questions
+    const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]); // Store filtered questions
 
+    const handleGenerateQuestions = (selectedTypes: string[], selectedTopics: string[], selectedQuestionCount: number) => {
+        // Apply filters to the fetched questions
+        const filtered = questions
+            .filter(question =>
+                selectedTypes.includes(question.type) &&
+                selectedTopics.includes(question.topic)
+            )
+            .slice(0, selectedQuestionCount); // Limit to the selected number of questions
 
+        setFilteredQuestions(filtered);
+        setShowQuestions(true);
+    };
 
     const handleApprove = async (id: string) => {
-        // Get the current question to determine the new approved value
-        const questionToUpdate = questions.find(question => question.id === id);
+        const questionToUpdate = filteredQuestions.find(question => question.id === id);
     
         if (questionToUpdate) {
-            // Optimistically update the local state
             const newApprovedStatus = !questionToUpdate.approved;
-            setQuestions(prevQuestions =>
+            setFilteredQuestions(prevQuestions =>
                 prevQuestions.map(question =>
                     question.id === id ? { ...question, approved: newApprovedStatus } : question
                 )
             );
     
             try {
-                // Send the update request to the Azure Function
                 const response = await fetch(`http://localhost:7071/api/UpdateQuestionApproval`, {
                     method: 'PUT',
                     headers: {
@@ -34,14 +44,13 @@ const GetQuestionsComponent: React.FC = () => {
                     },
                     body: JSON.stringify({
                         id: id,
-                        certification: questionToUpdate.certification, // Include certification as PartitionKey
+                        certification: questionToUpdate.certification,
                         approved: newApprovedStatus
                     })
                 });
     
                 if (!response.ok) {
-                    // If the update failed, revert the local state change
-                    setQuestions(prevQuestions =>
+                    setFilteredQuestions(prevQuestions =>
                         prevQuestions.map(question =>
                             question.id === id ? { ...question, approved: questionToUpdate.approved } : question
                         )
@@ -50,8 +59,7 @@ const GetQuestionsComponent: React.FC = () => {
                 }
             } catch (error) {
                 console.error('Error updating approval status:', error);
-                // If the update failed, revert the local state change
-                setQuestions(prevQuestions =>
+                setFilteredQuestions(prevQuestions =>
                     prevQuestions.map(question =>
                         question.id === id ? { ...question, approved: questionToUpdate.approved } : question
                     )
@@ -62,36 +70,29 @@ const GetQuestionsComponent: React.FC = () => {
 
     const handleDelete = async (id: string, certification: string) => {
         try {
-            // Call the API endpoint to delete the question, passing both id (RowKey) and certification (PartitionKey)
             await fetch(`http://localhost:7071/api/DeleteQuestion?id=${id}&certification=${encodeURIComponent(certification)}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: id,
-                    certification: certification,
-                })
+                }
             });
     
-            // Update the local state to remove the deleted question from the list
-            setQuestions(prevQuestions =>
+            setFilteredQuestions(prevQuestions =>
                 prevQuestions.filter(question => question.id !== id)
             );
         } catch (error) {
             console.error('Error deleting question:', error);
-            setError('Failed to delete the question');
         }
     };
 
     return (
         <div>
-            <SelectCertificationQuestions />
+            <SelectCertificationQuestions onGenerateQuestions={handleGenerateQuestions} />
             {loading ? 'Loading...' : ''}
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            {questions.length > 0 && (
+            {showQuestions && filteredQuestions.length > 0 && (
                 <QuestionNavigator
-                    questions={questions}
+                    questions={filteredQuestions} // Pass filtered questions
                     onApprove={handleApprove}
                     onDelete={handleDelete}
                 />

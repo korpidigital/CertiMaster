@@ -1,14 +1,31 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { certificationAtom, questionsAtom, loadingAtom, errorAtom } from '../atoms';
+import { CertificationData } from '../interfaces'; // Import the types
+import jsonData from '../../../az-204.json';
+import './SelectCertificationQuestions.css';
+import certificationBadge from '../assets/microsoft-certified-associate-badge.svg'; // Import the certification badge
 
+interface SelectCertificationQuestionsProps {
+    onGenerateQuestions: (selectedTypes: string[], selectedTopics: string[], selectedQuestionCount: number) => void;
+}
 
-export default function SelectCertificationQuestions() {
+export default function SelectCertificationQuestions({ onGenerateQuestions }: SelectCertificationQuestionsProps) {
     const [certification, setCertification] = useAtom(certificationAtom);
     const [questions, setQuestions] = useAtom(questionsAtom);
     const [loading, setLoading] = useAtom(loadingAtom);
     const [error, setError] = useAtom(errorAtom);
+
+    const [types, setTypes] = useState<string[]>([]);
+    const [topics, setTopics] = useState<string[]>([]);
+    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+    const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+    const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(10); // Default to 10 questions
+    const [isCertificationSelected, setIsCertificationSelected] = useState<boolean>(false); // Track if certification is selected
+
+    useEffect(() => {
+        initializeFilters(jsonData as CertificationData);
+    }, []);
 
     const fetchQuestions = async (certi: string) => {
         setCertification(certi);
@@ -26,8 +43,8 @@ export default function SelectCertificationQuestions() {
             if (response.ok) {
                 try {
                     const data = await response.json();
-                    console.log('Parsed data:', data);
                     setQuestions(data);
+                    setIsCertificationSelected(true); // Set certification as selected upon successful fetch
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
                     setError('Failed to parse response as JSON');
@@ -43,14 +60,133 @@ export default function SelectCertificationQuestions() {
         }
     };
 
+    const initializeFilters = (data: CertificationData) => {
+        setTypes(data.Types || []);
+        setTopics(data.Topics.map((topic) => topic.Topic) || []);
+        setSelectedTypes(data.Types || []); // Select all by default
+        setSelectedTopics(data.Topics.map((topic) => topic.Topic) || []); // Select all by default
+    };
 
+    const toggleSelection = (
+        item: string,
+        selectedItems: string[],
+        setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>
+    ) => {
+        if (selectedItems.includes(item)) {
+            setSelectedItems(selectedItems.filter((i) => i !== item));
+        } else {
+            setSelectedItems([...selectedItems, item]);
+        }
+    };
+
+    const selectAll = (items: string[], setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>) => {
+        setSelectedItems(items);
+    };
+
+    const deselectAll = (setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>) => {
+        setSelectedItems([]);
+    };
+
+    const handleGenerate = () => {
+        onGenerateQuestions(selectedTypes, selectedTopics, selectedQuestionCount);
+    };
 
     return (
-        <div>
-            <h1>Certification</h1>
-            <button onClick={()=>fetchQuestions('AZ-204')} disabled={loading}>
-                AZ-204
-            </button>
+        <div className="selectCertificationContainer">
+            <div
+                className={`certificationCard ${isCertificationSelected ? 'selected' : ''}`}
+                onClick={() => {
+                    if (!isCertificationSelected) {
+                        fetchQuestions('AZ-204');
+                    }
+                }}
+            >
+                <h2 className="certificationTitle">AZ-204</h2>
+                <img src={certificationBadge} alt="Azure Developer Associate Badge" className="certificationBadge" />
+                <h2 className="certificationTitle">Microsoft Certified: Azure Developer Associate</h2>
+            </div>
+
+            {loading && <p className="loadingMessage">Loading...</p>}
+            {error && <p className="errorMessage">{error}</p>}
+
+            {isCertificationSelected && (
+                <div className="filterSection">
+                    <h2>Filter Options</h2>
+                    <div className="filterSubSection">
+                        <h3>Types</h3>
+                        <div className="filterButtons">
+                            <button
+                                className={`selectAllButton ${selectedTypes.length === types.length ? 'selected' : ''}`}
+                                onClick={() => selectAll(types, setSelectedTypes)}
+                            >
+                                Select All
+                            </button>
+                            <button
+                                className={`unselectAllButton ${selectedTypes.length === 0 ? 'selected' : ''}`}
+                                onClick={() => deselectAll(setSelectedTypes)}
+                            >
+                                Deselect All
+                            </button>
+                        </div>
+                        <div className="filterOptionsContainer">
+                            {types.map((type) => (
+                                <div
+                                    key={type}
+                                    className={`filterOption ${selectedTypes.includes(type) ? 'selected' : ''}`}
+                                    onClick={() => toggleSelection(type, selectedTypes, setSelectedTypes)}
+                                >
+                                    {type}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="filterSubSection">
+                        <h3>Topics</h3>
+                        <div className="filterButtons">
+                            <button
+                                className={`selectAllButton ${selectedTopics.length === topics.length ? 'selected' : ''}`}
+                                onClick={() => selectAll(topics, setSelectedTopics)}
+                            >
+                                Select All
+                            </button>
+                            <button
+                                className={`unselectAllButton ${selectedTopics.length === 0 ? 'selected' : ''}`}
+                                onClick={() => deselectAll(setSelectedTopics)}
+                            >
+                                Deselect All
+                            </button>
+                        </div>
+                        <div className="filterOptionsContainer">
+                            {topics.map((topic) => (
+                                <div
+                                    key={topic}
+                                    className={`filterOption ${selectedTopics.includes(topic) ? 'selected' : ''}`}
+                                    onClick={() => toggleSelection(topic, selectedTopics, setSelectedTopics)}
+                                >
+                                    {topic}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="filterSubSection">
+                        <h3>Select Number of Questions</h3>
+                        <div className="filterOptionsContainer">
+                            {[10, 20, 30, 40, 50].map((count) => (
+                                <div
+                                    key={count}
+                                    className={`questionCountOption ${selectedQuestionCount === count ? 'selected' : ''}`}
+                                    onClick={() => setSelectedQuestionCount(count)}
+                                >
+                                    {count}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <button className="generateQuestionsButton" onClick={handleGenerate} disabled={loading}>
+    Generate Questions
+</button>
+                </div>
+            )}
         </div>
-    )
+    );
 }
