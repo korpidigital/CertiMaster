@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import './QuestionNavigator.css'; // Ensure the path is correct
 import { useAtom } from 'jotai';
 import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom } from '../atoms';
 import { Question } from '../interfaces';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBook, faClipboardList, faInfoCircle, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 interface QuestionNavigatorProps {
     questions: Question[];
     onApprove: (id: string) => void;
     onDelete: (id: string, certification: string) => void;
+    scrollToInfo?: boolean; // New prop to indicate if we need to scroll to questionInfo
 }
 
-export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions, onApprove, onDelete }) => {
+export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
+    questions, 
+    onApprove, 
+    onDelete, 
+    scrollToInfo = false // Default to false
+}) => {
     const [currentIndex, setCurrentIndex] = React.useState(0);
     const [selectedOptionsPerQuestion, setSelectedOptionsPerQuestion] = useAtom(selectedOptionsPerQuestionAtom);
     const [questionSubmissionState, setQuestionSubmissionState] = useAtom(questionSubmissionStateAtom);
@@ -18,7 +26,16 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
     const totalQuestions = questions.length;
     const currentQuestion = questions[currentIndex];
 
-    // Initialize the selected options and submission state for each question
+    // Reference to the questionInfo div
+    const questionInfoRef = useRef<HTMLDivElement>(null);
+
+    // Scroll to questionInfo when scrollToInfo prop is true
+    useEffect(() => {
+        if (scrollToInfo && questionInfoRef.current) {
+            questionInfoRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [scrollToInfo]);
+
     React.useEffect(() => {
         if (selectedOptionsPerQuestion.length === 0) {
             setSelectedOptionsPerQuestion(new Array(totalQuestions).fill([]));
@@ -31,9 +48,8 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
     const selectedOptions = selectedOptionsPerQuestion[currentIndex] || [];
     const currentSubmissionState = questionSubmissionState[currentIndex];
 
-    // Parse options and correctAnswer
-    let options = currentQuestion.options;
-    let correctAnswer = currentQuestion.correctAnswer;
+    let options: string[] = currentQuestion.options;
+    let correctAnswer: string[] = currentQuestion.correctAnswer;
 
     if (typeof options === 'string') {
         try {
@@ -84,7 +100,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
     const handleOptionSelect = (option: string) => {
         if (currentSubmissionState) return;
 
-        let updatedSelectedOptions;
+        let updatedSelectedOptions: string[];
         if (selectedOptions.includes(option)) {
             updatedSelectedOptions = selectedOptions.filter(o => o !== option);
         } else {
@@ -116,18 +132,22 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({ questions,
 
     return (
         <div>
-            <div className='questionInfo'>
+            <div className='questionInfo' ref={questionInfoRef}>
                 <div className="infoBlock">
                     <div className="infoItem">
+                        <FontAwesomeIcon icon={faBook} />
                         <strong>Topic:</strong> {currentQuestion.topic || 'N/A'}
                     </div>
                     <div className="infoItem">
+                        <FontAwesomeIcon icon={faClipboardList} />
                         <strong>Subtopic:</strong> {currentQuestion.subtopic || 'N/A'}
                     </div>
                     <div className="infoItem">
+                        <FontAwesomeIcon icon={faInfoCircle} />
                         <strong>Detail:</strong> {currentQuestion.detail || 'N/A'}
                     </div>
                     <div className="infoItem">
+                        <FontAwesomeIcon icon={faQuestionCircle} />
                         <strong>Type:</strong> {currentQuestion.type || 'N/A'}
                     </div>
                 </div>

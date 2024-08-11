@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { certificationAtom, questionsAtom, loadingAtom, errorAtom } from '../atoms';
@@ -101,9 +102,9 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
                     }
                 }}
             >
-                <h2 className="certificationTitle">AZ-204</h2>
+                <h1 className="certificationTitle">AZ-204</h1>
                 <img src={certificationBadge} alt="Azure Developer Associate Badge" className="certificationBadge" />
-                <h2 className="certificationTitle">Microsoft Certified: Azure Developer Associate</h2>
+                <h1 className="certificationTitle">Microsoft Certified: Azure Developer Associate</h1>
             </div>
 
             {loading && <p className="loadingMessage">Loading...</p>}
@@ -111,9 +112,9 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
 
             {isCertificationSelected && (
                 <div className="filterSection">
-                    <h2>Filter Options</h2>
+                    <h2>Filter {certification} Questions</h2>
                     <div className="filterSubSection">
-                        <h3>Types</h3>
+                        <h3>Question Types</h3>
                         <div className="filterButtons">
                             <button
                                 className={`selectAllButton ${selectedTypes.length === types.length ? 'selected' : ''}`}
@@ -141,7 +142,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
                         </div>
                     </div>
                     <div className="filterSubSection">
-                        <h3>Topics</h3>
+                        <h3>Question Topics</h3>
                         <div className="filterButtons">
                             <button
                                 className={`selectAllButton ${selectedTopics.length === topics.length ? 'selected' : ''}`}
@@ -183,8 +184,8 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
                         </div>
                     </div>
                     <button className="generateQuestionsButton" onClick={handleGenerate} disabled={loading}>
-    Generate Questions
-</button>
+                        Generate Questions
+                    </button>
                 </div>
             )}
         </div>

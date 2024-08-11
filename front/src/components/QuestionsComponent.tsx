@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { QuestionNavigator } from './QuestionNavigator';
-import { questionsAtom, loadingAtom, errorAtom } from '../atoms';
+import { questionsAtom, errorAtom } from '../atoms';
 import SelectCertificationQuestions from './SelectCertificationQuestions';
 import { Question } from '../interfaces';
 
 const GetQuestionsComponent: React.FC = () => {
     const [questions] = useAtom(questionsAtom); // Fetched questions
-    const [loading] = useAtom(loadingAtom);
     const [error] = useAtom(errorAtom);
     const [showQuestions, setShowQuestions] = useState(false); // Control visibility of questions
     const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]); // Store filtered questions
+    const questionNavigatorRef = useRef<HTMLDivElement>(null); // Ref for scrolling
 
     const handleGenerateQuestions = (selectedTypes: string[], selectedTopics: string[], selectedQuestionCount: number) => {
         // Apply filters to the fetched questions
@@ -24,6 +24,12 @@ const GetQuestionsComponent: React.FC = () => {
         setFilteredQuestions(filtered);
         setShowQuestions(true);
     };
+
+    useEffect(() => {
+        if (showQuestions && questionNavigatorRef.current) {
+            questionNavigatorRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [showQuestions]);
 
     const handleApprove = async (id: string) => {
         const questionToUpdate = filteredQuestions.find(question => question.id === id);
@@ -88,14 +94,15 @@ const GetQuestionsComponent: React.FC = () => {
     return (
         <div>
             <SelectCertificationQuestions onGenerateQuestions={handleGenerateQuestions} />
-            {loading ? 'Loading...' : ''}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {showQuestions && filteredQuestions.length > 0 && (
-                <QuestionNavigator
-                    questions={filteredQuestions} // Pass filtered questions
-                    onApprove={handleApprove}
-                    onDelete={handleDelete}
-                />
+                <div ref={questionNavigatorRef}>
+                    <QuestionNavigator
+                        questions={filteredQuestions} // Pass filtered questions
+                        onApprove={handleApprove}
+                        onDelete={handleDelete}
+                    />
+                </div>
             )}
         </div>
     );
