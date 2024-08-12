@@ -144,7 +144,7 @@ button {
     cursor: pointer;
     border-radius: 8px;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); */
     text-transform: uppercase;
     letter-spacing: 1.5px;
     background-color: #4CAF50; /* Ensure green background for all buttons */
@@ -152,16 +152,20 @@ button {
     border: none;
 }
 
-button:hover {
-    background-color: #45a049; /* Darker green on hover */
-    transform: scale(1.05);
-}
+
 
 button:disabled {
-    background-color: #cccccc;
     color: #666666;
     cursor: not-allowed;
     box-shadow: none;
+}
+button:disabled:hover {
+    box-shadow: none;
+}
+button:hover {
+    border-radius: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .errorMessage {

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import './QuestionNavigator.css'; // Ensure the path is correct
+import './QuestionNavigator.css';
 import { useAtom } from 'jotai';
 import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom } from '../atoms';
 import { Question } from '../interfaces';
@@ -10,14 +10,14 @@ interface QuestionNavigatorProps {
     questions: Question[];
     onApprove: (id: string) => void;
     onDelete: (id: string, certification: string) => void;
-    scrollToInfo?: boolean; // New prop to indicate if we need to scroll to questionInfo
+    scrollToInfo?: boolean;
 }
 
 export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
-    questions, 
-    onApprove, 
-    onDelete, 
-    scrollToInfo = false // Default to false
+    questions,
+    onApprove,
+    onDelete,
+    scrollToInfo = false,
 }) => {
     const [currentIndex, setCurrentIndex] = React.useState(0);
     const [selectedOptionsPerQuestion, setSelectedOptionsPerQuestion] = useAtom(selectedOptionsPerQuestionAtom);
@@ -36,7 +36,8 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
         }
     }, [scrollToInfo]);
 
-    React.useEffect(() => {
+    // Initialize selected options and submission state
+    useEffect(() => {
         if (selectedOptionsPerQuestion.length === 0) {
             setSelectedOptionsPerQuestion(new Array(totalQuestions).fill([]));
         }
@@ -126,7 +127,11 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
         const isCorrect = selected.join() === correct.join();
 
         const updatedSubmissionState = [...questionSubmissionState];
-        updatedSubmissionState[currentIndex] = isCorrect ? 'correct' : 'wrong';
+        updatedSubmissionState[currentIndex] = {
+            questionId: currentQuestion.id,
+            correct: isCorrect,
+            selectedOptions: selectedOptions,
+        };
         setQuestionSubmissionState(updatedSubmissionState);
     };
 
@@ -152,23 +157,15 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                     </div>
                 </div>
             </div>
-            <div className='actionButtons'>
-                <button className='button approveButton' onClick={handleApprove} disabled={currentQuestion.approved}>
-                    {currentQuestion.approved ? 'Approved' : 'Approve'}
-                </button>
-                <button className='button deleteButton' onClick={handleDelete}>
-                    Delete
-                </button>
-            </div>
             <div className='navigationButtons'>
-                <button className='button' onClick={handleBack} disabled={currentIndex === 0}>
+                <button className='moveButton' onClick={handleBack} disabled={currentIndex === 0}>
                     Back
                 </button>
                 <div className="questionNumber">
                     <strong>Question:</strong> {currentIndex + 1} of {totalQuestions}
                     {currentQuestion.approved && <span className="approvedCheckmark">✔️</span>}
                 </div>
-                <button className='button' onClick={handleNext} disabled={currentIndex === totalQuestions - 1}>
+                <button className='moveButton' onClick={handleNext} disabled={currentIndex === totalQuestions - 1}>
                     Next
                 </button>
             </div>
@@ -221,8 +218,8 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                         Submit
                     </button>
                     {currentSubmissionState && (
-                        <div className={`submissionResult ${currentSubmissionState}`}>
-                            {currentSubmissionState === 'correct' ? 'Correct!' : 'Wrong!'}
+                        <div className={`submissionResult ${currentSubmissionState.correct ? 'correct' : 'wrong'}`}>
+                            {currentSubmissionState.correct ? 'Correct!' : 'Wrong!'}
                         </div>
                     )}
                 </div>
@@ -269,11 +266,18 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                         </div>
                     </>
                 )}
-
                 <div className='questionItem'>
                     <strong>Order:</strong>
                     <div className='questionContent'>{currentQuestion.order || 'N/A'}</div>
                 </div>
+            </div>
+            <div className='actionButtons'>
+                <button className='button approveButton' onClick={handleApprove} disabled={currentQuestion.approved}>
+                    {currentQuestion.approved ? 'Approved' : 'Approve'}
+                </button>
+                <button className='button deleteButton' onClick={handleDelete}>
+                    Delete
+                </button>
             </div>
         </div>
     );

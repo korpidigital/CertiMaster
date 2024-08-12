@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { QuestionNavigator } from './QuestionNavigator';
-import { questionsAtom, errorAtom } from '../atoms';
+import { questionsAtom, errorAtom, questionSubmissionStateAtom } from '../atoms';
 import SelectCertificationQuestions from './SelectCertificationQuestions';
+import QuestionnaireReview from './QuestionnaireReview';
 import { Question } from '../interfaces';
 
 const GetQuestionsComponent: React.FC = () => {
@@ -11,6 +12,8 @@ const GetQuestionsComponent: React.FC = () => {
     const [showQuestions, setShowQuestions] = useState(false); // Control visibility of questions
     const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]); // Store filtered questions
     const questionNavigatorRef = useRef<HTMLDivElement>(null); // Ref for scrolling
+    const [questionSubmissionState] = useAtom(questionSubmissionStateAtom);
+    const [showReview, setShowReview] = useState(false); // State to track when to show the review
 
     const handleGenerateQuestions = (selectedTypes: string[], selectedTopics: string[], selectedQuestionCount: number) => {
         // Apply filters to the fetched questions
@@ -30,6 +33,13 @@ const GetQuestionsComponent: React.FC = () => {
             questionNavigatorRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [showQuestions]);
+
+    // Check if all questions have been answered to show the review
+    useEffect(() => {
+        if (filteredQuestions.length > 0 && questionSubmissionState.length === filteredQuestions.length) {
+            setShowReview(true);
+        }
+    }, [questionSubmissionState, filteredQuestions]);
 
     const handleApprove = async (id: string) => {
         const questionToUpdate = filteredQuestions.find(question => question.id === id);
@@ -104,6 +114,7 @@ const GetQuestionsComponent: React.FC = () => {
                     />
                 </div>
             )}
+            {showReview && <QuestionnaireReview />}
         </div>
     );
 };

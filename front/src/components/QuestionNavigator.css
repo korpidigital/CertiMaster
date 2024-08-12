@@ -109,20 +109,22 @@
     justify-content: space-around; /* Space the buttons out evenly */
 }
 
-.button {
+.navigationButtons {
     padding: 12px 20px;
     margin: 5px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    border-radius: 8px;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
     text-transform: uppercase;
     letter-spacing: 1.5px;
+    background-color: #282c34;
+    justify-content: space-between;
 }
 
-.button:hover {
-    transform: scale(1.05); /* Slightly increase the size of the button on hover */
+.moveButton {
+    background-color: #282c34;
+    color: white;
+    border: none;
 }
 
 .approveButton {
@@ -143,12 +145,6 @@
 
 .deleteButton:hover {
     background-color: #e53935;
-}
-
-.button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    box-shadow: none;
 }
 
 .approvedCheckmark {

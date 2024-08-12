@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { certificationAtom, questionsAtom, loadingAtom, errorAtom } from '../atoms';
-import { CertificationData } from '../interfaces'; // Import the types
+import { CertificationData } from '../interfaces';
 import jsonData from '../../../az-204.json';
 import './SelectCertificationQuestions.css';
-import certificationBadge from '../assets/microsoft-certified-associate-badge.svg'; // Import the certification badge
+import certificationBadge from '../assets/microsoft-certified-associate-badge.svg';
+import { GridLoader } from 'react-spinners';
 
 interface SelectCertificationQuestionsProps {
     onGenerateQuestions: (selectedTypes: string[], selectedTopics: string[], selectedQuestionCount: number) => void;
@@ -107,7 +108,11 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
                 <h1 className="certificationTitle">Microsoft Certified: Azure Developer Associate</h1>
             </div>
 
-            {loading && <p className="loadingMessage">Loading...</p>}
+            {loading && (
+                <div className="loadingSpinner">
+                    <GridLoader color="#ffd700" size={20} />
+                </div>
+            )}
             {error && <p className="errorMessage">{error}</p>}
 
             {isCertificationSelected && (
