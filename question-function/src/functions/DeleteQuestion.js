@@ -17,10 +17,12 @@ app.http('DeleteQuestion', {
     handler: async (request, context) => {
         context.log(`HTTP DELETE function processed request for URL "${request.url}"`);
 
-        const { id, certification } = await request.json();
+        // Get parameters from query string
+        const id = request.query.get('id');
+        const certification = request.query.get('certification');
 
         if (!id || !certification) {
-            return { status: 400, body: 'ID and PartitionKey parameters are required' };
+            return { status: 400, body: 'ID and certification parameters are required' };
         }
 
         try {

@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
+import Anthropic from "@anthropic-ai/sdk";
 
 const isLocal = process.env.NODE_ENV === 'local';
 let mockDatabase = []; // In-memory array to act as a mock database
@@ -19,12 +20,16 @@ function numCorrect(type) {
     switch (type) {
         case 'Standard Question':
             return 1;
+        case 'Code-Based':
+            return 1;
+        case 'CLI Commands':
+            return 1;
         case 'True Question':
             return getRandomInt(1, 4);
         case 'Scenario-Based':
             return 4;
         default:
-            return 0; // or some default value if the type doesn't match any case
+            return 0;
     }
 }
 
@@ -58,28 +63,21 @@ function getQuestionTypeDefinition(type) {
         case "Scenario-Based":
             return "Present a scenario in question and steps in options to resolve it. All options have to be part of the answer. Order: Yes.";
         case "Code-Based":
-            return "Understanding of coding principles in C#, Python, or JavaScript, with code wrapped in single quotes.";
+            return "Understanding of coding principles in C#, Python, or JavaScript. If question has code lines, wrap those inside <code></code> tag. Select a correct piece of code to use.";
         case "CLI Commands":
-            return "Azure CLI or PowerShell tasks with code wrapped in single quotes.";
+            return "Azure CLI or PowerShell tasks with code wrapped in <code></code> tag. Select a correct command to to use";
         default:
             return "Unknown question type.";
     }
 }
 
 
-async function generateQA(certification, topic, subtopic, detail, type, numPairs) {
+async function generateQA(certification, topic, subtopic, detail, type, numPairs, source) {
     const numCorrectAnswers = numCorrect(type);
     const correctAnswersOrder = randomLettersAndOrderABCD(numCorrectAnswers, numPairs);
     const questionTypeDefinition = getQuestionTypeDefinition(type);
 
-    // Question types:
-    // - Standard Question: Single correct answer. Order: No.
-    // - True Question: Select the true. Can be 1,2,3 or 4 correct answers. Order: No.
-    // - Scenario-Based: Present a scenario in question and steps in options to resolve it. All options have to be part of the answer. Order: Yes.
-    // - Code-Based: Understanding of coding principles in C#, Python, or JavaScript, with code wrapped in single quotes.
-    // - CLI Commands: Azure CLI or PowerShell tasks with code wrapped in single quotes.
-
-
+    const systemPrompt = 'You are an AI assistant that generates official certification exam questions.'
     const prompt = `Generate ${numPairs} unique and diverse questions for a certification exam in JSON format.
     Certification: ${certification}.
     Topic: ${topic}.
@@ -89,11 +87,12 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
     Question type definition: ${questionTypeDefinition}
     Number of correct answers: ${numCorrectAnswers}.
     Put correct answers in these letters and in this order (correctAnswersOrder): ${JSON.stringify(correctAnswersOrder)}.
-    
+    Do not include options in the "question", but always in "options"
     Output only the questions in JSON format without introductory text in a format like below. JSON objects in array like [{<question1>},{<question2>}]
-
+    Do NOT ask too easy or obvious questions.
+    If question has code lines, wrap those inside <code></code> tag.
     "order": "Yes"/"No" - field is telling if question needs to be answered in specific order.
-    "explanation": "" - field is telling WHY the correct answer is correct and giving useful details about it. 
+    "explanation": "" - field is telling WHY the correct answer is correct and giving useful details about it.
     "correctAnswer": [""], - array of prefixes of correct answers. Value of correctAnswersOrder from right question key.
     Format:
     [
@@ -103,10 +102,11 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
         "subtopic": "${subtopic}",
         "detail": "${detail}",
         "question": "",
-        "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
+        "options": ["A) ''", "B) ''", "C) ''", "D) ''"],
         "correctAnswer": [""],
         "explanation": "",
-        "order": "Yes"/"No"
+        "order": "Yes"/"No",
+        "source": "${source}"
         },
         {
         "type": "${type}",
@@ -117,59 +117,109 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
         "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
         "correctAnswer": ${JSON.stringify(correctAnswersOrder)},
         "explanation": "",
-        "order": "Yes"/"No"
+        "order": "Yes"/"No",
+        "source": "${source}"
         }
     ]`;
 
+    let response;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [
-                {
-                    role: 'system',
-                    content: 'You are an AI assistant that generates official certification exam questions.'
-                },
-                {
-                    role: 'user',
-                    content: prompt
-                }
-            ],
-            max_tokens: 4096, // literally max
-            n: 1,
-            stop: null,
-            temperature: 0.5
-        })
-    });
+    if (source == "chatGPT") {
 
-    const data = await response.json();
-    console.log("OpenAI API Response:", JSON.stringify(data, null, 2));
+        response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        role: 'system',
+                        content: systemPrompt
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                max_tokens: 4096, // literally max
+                n: 1,
+                stop: null,
+                temperature: 0.5
+            })
+        });
 
-    if (!data || !data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-        throw new Error("Invalid response from OpenAI API");
-    }
+        const data = await response.json();
+        console.log("OpenAI API Response:", JSON.stringify(data, null, 2));
 
-    let qaPairs;
-    try {
-        const responseText = data.choices[0].message.content.trim();
-        const cleanedResponse = responseText.replace(/```json|```/g, '').trim();
-        qaPairs = JSON.parse(cleanedResponse);
-
-        // Ensure qaPairs is an array
-        if (!Array.isArray(qaPairs)) {
-            qaPairs = [qaPairs];
+        if (!data || !data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+            throw new Error("Invalid response from OpenAI API");
         }
-    } catch (error) {
-        console.error("Error parsing JSON response:", data.choices[0].message.content.trim());
-        throw new Error("Failed to parse response from OpenAI API");
-    }
 
-    return qaPairs;
+        let qaPairs;
+        try {
+            const responseText = data.choices[0].message.content.trim();
+            const cleanedResponse = responseText.replace(/```json|```/g, '').trim();
+            qaPairs = JSON.parse(cleanedResponse);
+
+            // Ensure qaPairs is an array
+            if (!Array.isArray(qaPairs)) {
+                qaPairs = [qaPairs];
+            }
+        } catch (error) {
+            console.error("Error parsing JSON response:", data.choices[0].message.content.trim());
+            throw new Error("Failed to parse response from OpenAI API");
+        }
+
+        return qaPairs;
+    } else if (source === 'Claude') {
+        // Claude API integration
+        response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'anthropic-version': '2023-06-01',
+                'content-type': 'application/json',
+                'x-api-key': process.env.CLAUDE_API_KEY
+            },
+            body: JSON.stringify({
+                model: 'claude-3-5-sonnet-20240620',
+                max_tokens: 4096,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt,
+                    },
+                ],
+            }),
+        });
+
+        const data = await response.json();
+        console.log('Claude API Response:', JSON.stringify(data, null, 2));
+
+        if (!data || !data.content || data.content.length === 0) {
+            throw new Error('Invalid response from Claude API');
+        }
+
+        let qaPairs;
+        try {
+            const responseText = data.content[0].text.trim();
+            qaPairs = JSON.parse(responseText);
+
+            if (!Array.isArray(qaPairs)) {
+                qaPairs = [qaPairs];
+            }
+        } catch (error) {
+            console.error('Error parsing JSON response from Claude:', data.content[0].text.trim());
+            throw new Error('Failed to parse response from Claude API');
+        }
+
+        return qaPairs;
+    } else {
+        console.log('Select a valid Source!');
+        return [];
+    }
 }
 
 async function saveToTableStorage(item) {
@@ -186,12 +236,13 @@ async function saveToTableStorage(item) {
         correctAnswer: JSON.stringify(item.correctAnswer),
         explanation: item.explanation,
         order: item.order,
-        approval: item.approval
+        approval: item.approval,
+        source: item.source
     };
     await tableClient.createEntity(entity);
 }
 
-async function generateAllQuestionsFromFile(filePath, numPairs) {
+async function generateAllQuestionsFromFile(filePath, numPairs, source) {
     const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
     const { Certification, Topics, Types } = jsonData;
@@ -202,7 +253,7 @@ async function generateAllQuestionsFromFile(filePath, numPairs) {
             const subtopic = subtopicObj.Subtopic;
             for (const detail of subtopicObj.Details) {
                 for (const type of Types) {
-                    const qaPairs = await generateQA(Certification, topic, subtopic, detail, type, numPairs);
+                    const qaPairs = await generateQA(Certification, topic, subtopic, detail, type, numPairs, source);
                     for (const qaPair of qaPairs) {
                         const newItem = {
                             id: uuidv4(),
@@ -216,7 +267,8 @@ async function generateAllQuestionsFromFile(filePath, numPairs) {
                             correctAnswer: qaPair.correctAnswer,
                             explanation: qaPair.explanation,
                             order: qaPair.order,
-                            approved: false
+                            approved: false,
+                            source: qaPair.source
                         };
 
                         if (isLocal) {
@@ -249,13 +301,13 @@ app.http('QuestionsToStorage', {
             return { status: 400, body: 'Invalid JSON payload' };
         }
 
-        const { certification, topic, subtopic, detail, numPairs, questionType, all, filePath } = body;
+        const { certification, topic, subtopic, detail, numPairs, questionType, all, filePath, source } = body;
 
         try {
             if (all) {
-                await generateAllQuestionsFromFile(path.resolve(filePath), numPairs);
+                await generateAllQuestionsFromFile(path.resolve(filePath), numPairs, source);
             } else {
-                const qaPairs = await generateQA(certification, topic, subtopic, detail, questionType, numPairs);
+                const qaPairs = await generateQA(certification, topic, subtopic, detail, questionType, numPairs, source);
                 const createdItems = [];
 
                 for (const qaPair of qaPairs) {
@@ -271,7 +323,8 @@ app.http('QuestionsToStorage', {
                         correctAnswer: qaPair.correctAnswer,
                         explanation: qaPair.explanation,
                         order: qaPair.order,
-                        approved: false
+                        approved: false,
+                        source: qaPair.source
                     };
 
                     if (isLocal) {

@@ -26,17 +26,14 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
     const totalQuestions = questions.length;
     const currentQuestion = questions[currentIndex];
 
-    // Reference to the questionInfo div
     const questionInfoRef = useRef<HTMLDivElement>(null);
 
-    // Scroll to questionInfo when scrollToInfo prop is true
     useEffect(() => {
         if (scrollToInfo && questionInfoRef.current) {
             questionInfoRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [scrollToInfo]);
 
-    // Initialize selected options and submission state
     useEffect(() => {
         if (selectedOptionsPerQuestion.length === 0) {
             setSelectedOptionsPerQuestion(new Array(totalQuestions).fill([]));
@@ -77,6 +74,25 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
         console.error('CorrectAnswer is not an array:', correctAnswer);
         correctAnswer = [];
     }
+
+    const parseAndStyleCodeTags = (text: string) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const codeElements = doc.querySelectorAll('code');
+
+        codeElements.forEach(codeElement => {
+            const span = document.createElement('span');
+            span.textContent = codeElement.textContent || '';
+            span.style.fontFamily = 'monospace';
+            span.style.backgroundColor = '#f5f5f5';
+            span.style.padding = '2px 4px';
+            span.style.borderRadius = '4px';
+            span.style.color = 'black';
+            codeElement.replaceWith(span);
+        });
+
+        return <span dangerouslySetInnerHTML={{ __html: doc.body.innerHTML }} />;
+    };
 
     const handleNext = () => {
         if (currentIndex < totalQuestions - 1) {
@@ -155,6 +171,10 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                         <FontAwesomeIcon icon={faQuestionCircle} />
                         <strong>Type:</strong> {currentQuestion.type || 'N/A'}
                     </div>
+                    <div className="infoItem">
+                        <FontAwesomeIcon icon={faQuestionCircle} />
+                        <strong>Source:</strong> {currentQuestion.source || 'N/A'}
+                    </div>
                 </div>
             </div>
             <div className='navigationButtons'>
@@ -172,7 +192,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
             <div className='questionText'>
                 <div className='questionItem'>
                     <strong>Question:</strong>
-                    <div className='questionContent'>{currentQuestion.question}</div>
+                    <div className='questionContent'>{parseAndStyleCodeTags(currentQuestion.question)}</div>
                 </div>
 
                 <div className='questionItem'>
@@ -197,7 +217,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                                         marginBottom: '8px'
                                     }}
                                 >
-                                    <strong>{option.slice(0, 2)}</strong>{option.slice(2)}
+                                    <strong>{option.slice(0, 2)}</strong>{parseAndStyleCodeTags(option.slice(2))}
                                     {currentQuestion.order === "Yes" && selectedOptions.includes(option) && (
                                         <span className="optionOrderNumber">
                                             {selectedOptions.indexOf(option) + 1}
@@ -262,7 +282,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
 
                         <div className='questionItem'>
                             <strong>Explanation:</strong>
-                            <div className='questionContent'>{currentQuestion.explanation || 'N/A'}</div>
+                            <div className='questionContent'>{parseAndStyleCodeTags(currentQuestion.explanation)}</div>
                         </div>
                     </>
                 )}

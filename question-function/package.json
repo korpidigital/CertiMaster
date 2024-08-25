@@ -9,6 +9,7 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
     "@azure/cosmos": "^4.0.0",
     "@azure/data-tables": "^13.2.2",
     "@azure/functions": "^4.0.0",

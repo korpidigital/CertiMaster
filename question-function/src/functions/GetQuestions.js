@@ -51,7 +51,8 @@ app.http('GetQuestions', {
                     correctAnswer: correctAnswer,
                     explanation: entity.explanation,
                     order: entity.order,
-                    approved: entity.approved
+                    approved: entity.approved,
+                    source: entity.source
                 };
 
                 questions.push(question);

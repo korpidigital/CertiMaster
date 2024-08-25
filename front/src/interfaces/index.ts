@@ -11,6 +11,7 @@ export interface Question {
     explanation: string;
     order: string;
     approved: boolean;
+    source: string;
 }
 
 export interface JsonDetail {
