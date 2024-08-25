@@ -86,15 +86,15 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
     Question type: ${type}.
     Question type definition: ${questionTypeDefinition}
     Number of correct answers: ${numCorrectAnswers}.
-    Put correct answers in these letters and in this order (correctAnswersOrder): ${JSON.stringify(correctAnswersOrder)}.
+    Put correct answers in these letters and in this order (correctAnswersOrder): ${JSON.stringify(correctAnswersOrder)}. Options are not displayed in the order of correct answers but always in order ABCD.
     Do not include options in the "question", but always in "options"
-    Output only the questions in JSON format without introductory text in a format like below. JSON objects in array like [{<question1>},{<question2>}]
     Do NOT ask too easy or obvious questions.
     If question has code lines, wrap those inside <code></code> tag.
     "order": "Yes"/"No" - field is telling if question needs to be answered in specific order.
     "explanation": "" - field is telling WHY the correct answer is correct and giving useful details about it.
     "correctAnswer": [""], - array of prefixes of correct answers. Value of correctAnswersOrder from right question key.
-    Format:
+    Response format is only the questions in JSON without any introductory text like "Here are questions for...", but only JSON objects in array like [{<question1>},{<question2>}]
+    Output format like below:
     [
         {
         "type": "${type}",
@@ -122,103 +122,110 @@ async function generateQA(certification, topic, subtopic, detail, type, numPairs
         }
     ]`;
 
+    const maxRetries = 5;
+    let attempts = 0;
     let response;
 
-    if (source == "chatGPT") {
-
-        response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-4o',
-                messages: [
-                    {
-                        role: 'system',
-                        content: systemPrompt
+    while (attempts < maxRetries) {
+        try {
+            if (source === 'chatGPT') {
+                response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
                     },
-                    {
-                        role: 'user',
-                        content: prompt
+                    body: JSON.stringify({
+                        model: 'gpt-4',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: prompt }
+                        ],
+                        max_tokens: 4096,
+                        n: 1,
+                        stop: null,
+                        temperature: 0.5
+                    })
+                });
+
+                const data = await response.json();
+                console.log("OpenAI API Response:", JSON.stringify(data, null, 2));
+
+                if (!data || !data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+                    throw new Error("Invalid response from OpenAI API");
+                }
+
+                let qaPairs;
+                try {
+                    const responseText = data.choices[0].message.content.trim();
+                    const cleanedResponse = responseText.replace(/```json|```/g, '').trim();
+                    qaPairs = JSON.parse(cleanedResponse);
+
+                    if (!Array.isArray(qaPairs)) {
+                        qaPairs = [qaPairs];
                     }
-                ],
-                max_tokens: 4096, // literally max
-                n: 1,
-                stop: null,
-                temperature: 0.5
-            })
-        });
+                } catch (error) {
+                    console.error("Error parsing JSON response:", data.choices[0].message.content.trim());
+                    throw new Error("Failed to parse response from OpenAI API");
+                }
 
-        const data = await response.json();
-        console.log("OpenAI API Response:", JSON.stringify(data, null, 2));
-
-        if (!data || !data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-            throw new Error("Invalid response from OpenAI API");
-        }
-
-        let qaPairs;
-        try {
-            const responseText = data.choices[0].message.content.trim();
-            const cleanedResponse = responseText.replace(/```json|```/g, '').trim();
-            qaPairs = JSON.parse(cleanedResponse);
-
-            // Ensure qaPairs is an array
-            if (!Array.isArray(qaPairs)) {
-                qaPairs = [qaPairs];
-            }
-        } catch (error) {
-            console.error("Error parsing JSON response:", data.choices[0].message.content.trim());
-            throw new Error("Failed to parse response from OpenAI API");
-        }
-
-        return qaPairs;
-    } else if (source === 'Claude') {
-        // Claude API integration
-        response = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'anthropic-version': '2023-06-01',
-                'content-type': 'application/json',
-                'x-api-key': process.env.CLAUDE_API_KEY
-            },
-            body: JSON.stringify({
-                model: 'claude-3-5-sonnet-20240620',
-                max_tokens: 4096,
-                messages: [
-                    {
-                        role: 'user',
-                        content: prompt,
+                return qaPairs;
+            } else if (source === 'Claude') {
+                response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'anthropic-version': '2023-06-01',
+                        'content-type': 'application/json',
+                        'x-api-key': process.env.CLAUDE_API_KEY
                     },
-                ],
-            }),
-        });
+                    body: JSON.stringify({
+                        model: 'claude-3-5-sonnet-20240620',
+                        max_tokens: 4096,
+                        messages: [
+                            { role: 'user', content: prompt }
+                        ]
+                    })
+                });
 
-        const data = await response.json();
-        console.log('Claude API Response:', JSON.stringify(data, null, 2));
+                const data = await response.json();
+                console.log('Claude API Response:', JSON.stringify(data, null, 2));
 
-        if (!data || !data.content || data.content.length === 0) {
-            throw new Error('Invalid response from Claude API');
-        }
+                if (data.type === "error") {
+                    throw new Error(`Claude API Error: ${data.error.message}`);
+                }
 
-        let qaPairs;
-        try {
-            const responseText = data.content[0].text.trim();
-            qaPairs = JSON.parse(responseText);
+                let responseText = data.content[0].text.trim();
 
-            if (!Array.isArray(qaPairs)) {
-                qaPairs = [qaPairs];
+                // Clean up any unwanted prefixes or introductory text
+                const jsonStartIndex = responseText.indexOf('[');
+                if (jsonStartIndex !== -1) {
+                    responseText = responseText.slice(jsonStartIndex);
+                }
+
+                let qaPairs = JSON.parse(responseText);
+
+                if (!Array.isArray(qaPairs)) {
+                    qaPairs = [qaPairs];
+                }
+
+                return qaPairs;
+            } else {
+                throw new Error('Invalid source specified');
             }
         } catch (error) {
-            console.error('Error parsing JSON response from Claude:', data.content[0].text.trim());
-            throw new Error('Failed to parse response from Claude API');
-        }
+            attempts++;
+            console.error(`Attempt ${attempts} failed: ${error.message}`);
 
-        return qaPairs;
-    } else {
-        console.log('Select a valid Source!');
-        return [];
+            if (attempts >= maxRetries) {
+                console.error('Max retries reached. Failing operation.');
+                throw new Error('Max retries reached. Unable to generate QA pairs.');
+            }
+
+            // Exponential backoff
+            const backoffTime = Math.min(1000 * Math.pow(2, attempts), 30000); // Cap at 30 seconds
+            console.log(`Waiting ${backoffTime}ms before retrying...`);
+            await new Promise((resolve) => setTimeout(resolve, backoffTime));
+        }
     }
 }
 
