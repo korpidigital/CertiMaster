@@ -15,16 +15,49 @@ const GetQuestionsComponent: React.FC = () => {
     const [questionSubmissionState] = useAtom(questionSubmissionStateAtom);
     const [showReview, setShowReview] = useState(false); // State to track when to show the review
 
-    const handleGenerateQuestions = (selectedTypes: string[], selectedTopics: string[], selectedQuestionCount: number) => {
-        // Apply filters to the fetched questions
-        const filtered = questions
-            .filter(question =>
-                selectedTypes.includes(question.type) &&
-                selectedTopics.includes(question.topic)
-            )
-            .slice(0, selectedQuestionCount); // Limit to the selected number of questions
-
-        setFilteredQuestions(filtered);
+    const shuffleArray = <T,>(array: T[]): T[] => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+    
+    const handleGenerateQuestions = (
+        selectedTypes: string[],
+        selectedTopics: string[],
+        selectedQuestionCount: number
+    ): void => {
+        // Filter questions by the selected types and topics
+        const filtered = questions.filter(
+            (question) => selectedTypes.includes(question.type) && selectedTopics.includes(question.topic)
+        );
+    
+        // Group questions by topic and shuffle each group's questions
+        const questionsByTopic: Record<string, Question[]> = {};
+        selectedTopics.forEach((topic) => {
+            questionsByTopic[topic] = shuffleArray(filtered.filter((question) => question.topic === topic));
+        });
+    
+        // Distribute questions evenly across topics
+        const evenlyDistributedQuestions: Question[] = [];
+        let topicIndex = 0;
+    
+        while (evenlyDistributedQuestions.length < selectedQuestionCount) {
+            const currentTopic = selectedTopics[topicIndex];
+            const topicQuestions = questionsByTopic[currentTopic];
+    
+            if (topicQuestions.length > 0) {
+                evenlyDistributedQuestions.push(topicQuestions.pop() as Question);
+            }
+    
+            topicIndex = (topicIndex + 1) % selectedTopics.length;
+        }
+    
+        // Final shuffle for randomness
+        const finalQuestions: Question[] = shuffleArray(evenlyDistributedQuestions);
+    
+        setFilteredQuestions(finalQuestions);
         setShowQuestions(true);
     };
 
