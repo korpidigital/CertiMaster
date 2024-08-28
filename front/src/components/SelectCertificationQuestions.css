@@ -134,7 +134,7 @@ h1, h2, h3 {
 
 .filterOption:hover, .questionCountOption:hover {
     transform: scale(1.05);
-    background-color: #3a3a4a; /* Slightly lighter background on hover */
+    /* background-color: #3a3a4a; */
 }
 
 button {
@@ -181,25 +181,23 @@ button:hover {
 }
 
 button.generateQuestionsButton {
-    padding: 15px 30px;
-    margin: 20px 0;
-    font-size: 2rem;
-    font-weight: bold;
+    display: block;
+    width: 100%;
+    padding: 20px 12px;
+    margin: 30px 0; /* Space between buttons */
+    background-color: #ffd700; /* Gold/yellow background on hover */
+    color: #000; /* Black text on hover */
+    border: 1px solid transparent; /* Maintain button shape */
+    text-align: center;
     cursor: pointer;
-    border-radius: 10px;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    background: linear-gradient(90deg, #ffd700, #ffe969); /* Gradient from orange to red */
-    color: #3a3a4a;
-    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
 }
 
 button.generateQuestionsButton:hover {
-    background: linear-gradient(90deg, #ffe969, #ffd700); /* Reverse gradient on hover */
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(255, 217, 0, 0.904); /* Orange glow effect */
+    background-color: #ffe760; /* Gold/yellow background on hover */
+    color: #333; /* Black text on hover */
 }
 
 button.generateQuestionsButton:disabled {

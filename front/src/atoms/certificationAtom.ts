@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
 
-const certificationAtom = atom<string>('');
+export const certificationAtom = atom<string>('');
+export const certificationCountAtom = atom<number>(0);
 
-export default certificationAtom

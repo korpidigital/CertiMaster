@@ -1,0 +1,43 @@
+.notification-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* width: 100%; */
+    background-color: #1a1a1a; /* Dark background */
+    color: white; /* White text */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align content to the left */
+    padding: 15px 20px;
+    z-index: 1000;
+    border-bottom: 2px solid #444; /* Border to separate from background */
+    border-right: 2px solid #444; /* Border to separate from background */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+  }
+  
+  .notification-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .notification-text button {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .auth-buttons {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    margin-top: 10px;
+  }
+  
+  .notification-text button:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly visible background on hover */
+  }

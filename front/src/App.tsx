@@ -3,7 +3,8 @@ import './App.css';
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
 import ChatGPTComponent from './components/QuestionsComponent';
-import LoginPage from './components/LoginPage';
+import NavBar from "./components/NavBar";
+import NotificationBar from "./components/NotificationBar"; 
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -15,7 +16,8 @@ function App() {
 
   return (
     <div className="App">
-      {!isAuthenticated && <LoginPage />}
+      <NotificationBar />
+      <NavBar />
       {isAuthenticated && <ChatGPTComponent />}
     </div>
   );

@@ -2,10 +2,10 @@ import { LogLevel, PublicClientApplication } from "@azure/msal-browser";
 
 const msalConfig = {
     auth: {
-        clientId: process.env.REACT_APP_MSAL_CLIENT_ID || "", // From the App registration
-        authority: process.env.REACT_APP_MSAL_AUTHORITY || "", // Replace with your User Flow authority
-        knownAuthorities: [process.env.REACT_APP_MSAL_KNOWN_AUTHORITIES || ""], // Your B2C tenant
-        redirectUri: process.env.REACT_APP_MSAL_REDIRECT_URI || "", // Should match the Redirect URI in Azure AD B2C
+        clientId: import.meta.env.VITE_MSAL_CLIENT_ID || "", // From the App registration
+        authority: import.meta.env.VITE_MSAL_AUTHORITY || "", // Replace with your User Flow authority
+        knownAuthorities: [import.meta.env.VITE_MSAL_KNOWN_AUTHORITIES || ""], // Your B2C tenant
+        redirectUri:import.meta.env.VITE_MSAL_REDIRECT_URI || "", // Should match the Redirect URI in Azure AD B2C
     },
     cache: {
         cacheLocation: "sessionStorage", // This configures where your cache will be stored
