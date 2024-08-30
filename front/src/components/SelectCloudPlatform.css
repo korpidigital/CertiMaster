@@ -1,0 +1,44 @@
+.selectCloudPlatformContainer {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.cloudPlatformSelection {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.cloudCard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: #1e1e2e;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin: 20px;
+    padding: 20px;
+    width: 200px;
+    height: 200px;
+}
+
+.cloudCard.selected {
+    transform: scale(1.1);
+    border: 2px solid #4CAF50;
+    background-color: #00796b;
+}
+
+.cloudBadge {
+    width: 100px;
+    height: auto;
+}
+
+.cloudTitle {
+    font-size: 1.5rem;
+    color: #ffffff;
+    text-align: center;
+    margin-top: 10px;
+}

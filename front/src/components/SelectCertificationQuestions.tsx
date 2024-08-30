@@ -2,18 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { certificationAtom, questionsAtom, loadingAtom, errorAtom } from '../atoms';
 import { CertificationData } from '../interfaces';
-import jsonData from '../../../az-204.json';
+import az204Data from '../../../az-204.json';
+import ai900Data from '../../../az-204.json'; // New JSON data for AI-900
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import './SelectCertificationQuestions.css';
-import certificationBadge from '../assets/microsoft-certified-associate-badge.svg';
+import az204certificationBadge from '../assets/az-204-badge.svg';
+import ai900certificationBadge from '../assets/ai-900-badge.svg'; // New badge for AI-900
 import { GridLoader } from 'react-spinners';
 
 interface SelectCertificationQuestionsProps {
     onGenerateQuestions: (selectedTypes: string[], selectedTopics: string[], selectedQuestionCount: number) => void;
+    cloud: string; // New prop for cloud platform
 }
 
-export default function SelectCertificationQuestions({ onGenerateQuestions }: SelectCertificationQuestionsProps) {
+export default function SelectCertificationQuestions({ onGenerateQuestions, cloud }: SelectCertificationQuestionsProps) {
     const [certification, setCertification] = useAtom(certificationAtom);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [questions, setQuestions] = useAtom(questionsAtom);
@@ -29,8 +32,10 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
     const [isFilterSectionOpen, setIsFilterSectionOpen] = useState<boolean>(true); // Control the accordion state
 
     useEffect(() => {
-        initializeFilters(jsonData as CertificationData);
-    }, []);
+        if (certification) {
+            fetchQuestions(certification);
+        }
+    }, [certification]);
 
     const fetchQuestions = async (certi: string) => {
         setCertification(certi);
@@ -73,6 +78,13 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
         setSelectedTopics(data.Topics.map((topic) => topic.Topic) || []); // Select all by default
     };
 
+    const handleCertificationClick = (certi: string, data: CertificationData) => {
+        initializeFilters(data);
+        setCertification(certi);
+        setIsCertificationSelected(true);
+        setIsFilterSectionOpen(true);
+    };
+
     const toggleSelection = (
         item: string,
         selectedItems: string[],
@@ -98,19 +110,34 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
         setIsFilterSectionOpen(false); // Close filter section when questions are generated
     };
 
+    const certifications = cloud === 'Azure' ? ['AZ-204', 'AI-900'] : ['AWS Certified Developer', 'AWS Certified Solutions Architect']; // Example AWS certifications
+
     return (
         <div className="selectCertificationContainer">
-            <div
-                className={`certificationCard ${isCertificationSelected ? 'selected' : ''}`}
-                onClick={() => {
-                    if (!isCertificationSelected) {
-                        fetchQuestions('AZ-204');
-                    }
-                }}
-            >
-                <h1 className="certificationTitle">{certification}</h1>
-                <img src={certificationBadge} alt="Azure Developer Associate Badge" className="certificationBadge" />
-                <h1 className="certificationTitle">Microsoft Certified: Azure Developer Associate</h1>
+            <div className="certificationSelection">
+                {certifications.includes('AZ-204') && (
+                    <div
+                        className={`certificationCard ${certification === 'AZ-204' ? 'selected' : ''}`}
+                        onClick={() => handleCertificationClick('AZ-204', az204Data)}
+                    >
+                        <h1 className="certificationTitle">AZ-204</h1>
+                        <img src={az204certificationBadge} alt="Azure Developer Associate Badge" className="certificationBadge" />
+                        <h1 className="certificationTitle">Microsoft Certified: Azure Developer Associate</h1>
+                    </div>
+                )}
+
+                {certifications.includes('AI-900') && (
+                    <div
+                        className={`certificationCard ${certification === 'AI-900' ? 'selected' : ''}`}
+                        onClick={() => handleCertificationClick('AI-900', ai900Data)}
+                    >
+                        <h1 className="certificationTitle">AI-900</h1>
+                        <img src={ai900certificationBadge} alt="Azure AI Fundamentals Badge" className="certificationBadge" />
+                        <h1 className="certificationTitle">Microsoft Certified: Azure AI Fundamentals</h1>
+                    </div>
+                )}
+
+                {/* Add similar blocks for AWS certifications if needed */}
             </div>
 
             {loading && (
@@ -120,12 +147,12 @@ export default function SelectCertificationQuestions({ onGenerateQuestions }: Se
             )}
             {error && <p className="errorMessage">{error}</p>}
 
-            {isCertificationSelected && (
+            {isCertificationSelected && !loading && (
                 <div className="filtterAccordion">
                     <div className="accordionHeader" onClick={() => setIsFilterSectionOpen(!isFilterSectionOpen)}>
                         <h2>Filter {certification} Questions</h2>
-                        <FontAwesomeIcon 
-                            icon={isFilterSectionOpen ? faChevronUp : faChevronDown} 
+                        <FontAwesomeIcon
+                            icon={isFilterSectionOpen ? faChevronUp : faChevronDown}
                             className="accordionArrow"
                         />
                     </div>

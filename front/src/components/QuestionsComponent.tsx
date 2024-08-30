@@ -5,9 +5,9 @@ import { questionsAtom, errorAtom, questionSubmissionStateAtom } from '../atoms'
 import SelectCertificationQuestions from './SelectCertificationQuestions';
 import QuestionnaireReview from './QuestionnaireReview';
 import { Question } from '../interfaces';
-import "./QuestionsComponent.css"
+import "./QuestionsComponent.css";
 
-const GetQuestionsComponent: React.FC = () => {
+const GetQuestionsComponent: React.FC<{ selectedCloud: string | null }> = ({ selectedCloud }) => {
     const [questions] = useAtom(questionsAtom); // Fetched questions
     const [error] = useAtom(errorAtom);
     const [showQuestions, setShowQuestions] = useState(false); // Control visibility of questions
@@ -137,7 +137,14 @@ const GetQuestionsComponent: React.FC = () => {
 
     return (
         <div className='componentContainer'>
-            <SelectCertificationQuestions onGenerateQuestions={handleGenerateQuestions} />
+            {selectedCloud ? (
+                <SelectCertificationQuestions
+                    onGenerateQuestions={handleGenerateQuestions}
+                    cloud={selectedCloud}
+                />
+            ) : (
+                <p>Please select a cloud platform to proceed.</p>
+            )}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {showQuestions && filteredQuestions.length > 0 && (
                 <div ref={questionNavigatorRef}>

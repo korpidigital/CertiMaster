@@ -2,9 +2,9 @@ import React from 'react';
 import './App.css';
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
-import ChatGPTComponent from './components/QuestionsComponent';
 import NavBar from "./components/NavBar";
 import NotificationBar from "./components/NotificationBar"; 
+import SelectCloudPlatform from './components/SelectCloudPlatform';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -18,7 +18,7 @@ function App() {
     <div className="App">
       <NotificationBar />
       <NavBar />
-      {isAuthenticated && <ChatGPTComponent />}
+      {isAuthenticated && <SelectCloudPlatform />}
     </div>
   );
 }
