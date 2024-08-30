@@ -8,10 +8,10 @@ body {
 }
 
 .selectCertificationContainer {
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    margin-bottom: 20px;
 }
+
 
 h1, h2, h3 {
     color: #ffd700; /* Gold color for headings */
@@ -28,7 +28,7 @@ h1, h2, h3 {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin-bottom: 20px;
+    
 }
 
 .certificationCard:hover {
@@ -205,4 +205,42 @@ button.generateQuestionsButton:disabled {
     color: #666666;
     cursor: not-allowed;
     box-shadow: none;
+}
+
+.accordionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    background-color: #3a3a4a;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.accordionArrow {
+    color: #ffd700; /* Gold color */
+    font-size: 1.5em;
+    transition: transform 0.3s ease;
+}
+
+.filterSection {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.8s ease, opacity 0.5s ease;
+}
+
+.filterSection.open {
+    max-height: 1000px; /* A large enough value to accommodate the content */
+    opacity: 1;
+}
+
+.filtterAccordion {
+    background-color: #3a3a4a; /* Slightly lighter background */
+    padding: 20px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    transition: padding 0.3s ease; /* Optional: Adjust padding during open/close */
 }

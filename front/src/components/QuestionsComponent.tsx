@@ -5,6 +5,7 @@ import { questionsAtom, errorAtom, questionSubmissionStateAtom } from '../atoms'
 import SelectCertificationQuestions from './SelectCertificationQuestions';
 import QuestionnaireReview from './QuestionnaireReview';
 import { Question } from '../interfaces';
+import "./QuestionsComponent.css"
 
 const GetQuestionsComponent: React.FC = () => {
     const [questions] = useAtom(questionsAtom); // Fetched questions
@@ -135,7 +136,7 @@ const GetQuestionsComponent: React.FC = () => {
     };
 
     return (
-        <div>
+        <div className='componentContainer'>
             <SelectCertificationQuestions onGenerateQuestions={handleGenerateQuestions} />
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {showQuestions && filteredQuestions.length > 0 && (

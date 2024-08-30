@@ -37,6 +37,8 @@ const NotificationBar: React.FC = () => {
             <button onClick={handleSubscribe}>Subscribe Now</button>
             <div>{certifications} certifications</div>
             <div>{questions} questions</div>
+            <br/>
+            <div>More coming weekly</div>
           </>
         ) : (
           <>
@@ -47,6 +49,8 @@ const NotificationBar: React.FC = () => {
             </div>
             <div>{certifications} certifications</div>
             <div>{questions} questions</div>
+            <br/>
+            <div>More coming weekly</div>
           </>
         )}
       </div>

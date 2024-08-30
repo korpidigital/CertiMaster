@@ -2,10 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
-import { useAtom } from "jotai";
-import {
-    isSubscriptionActiveAtom,
-} from "../atoms";
 import "./NavBar.css";
 
 const NavBar: React.FC = () => {
@@ -13,9 +9,6 @@ const NavBar: React.FC = () => {
     const isAuthenticated = useIsAuthenticated();
     const { instance } = useMsal();
     const dropdownRef = useRef<HTMLDivElement>(null);
-
-    const [isSubscriptionActive] = useAtom(isSubscriptionActiveAtom);
-
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
