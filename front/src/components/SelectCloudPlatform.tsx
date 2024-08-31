@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import GetQuestionsComponent from './QuestionsComponent';
-import azureLogo from '../assets/azure-logo.svg'; // Azure logo
-import awsLogo from '../assets/aws-logo.svg'; // AWS logo
-import './SelectCloudPlatform.css'; // Add necessary CSS for styling
+import azureLogo from '../assets/azure-logo.svg';
+import awsLogo from '../assets/aws-logo.svg';
+import './SelectCloudPlatform.css';
 
 const SelectCloudPlatform: React.FC = () => {
     const [selectedCloud, setSelectedCloud] = useState<string | null>(null);
@@ -13,9 +13,14 @@ const SelectCloudPlatform: React.FC = () => {
 
     return (
         <div className="selectCloudPlatformContainer">
-            <div className="cloudPlatformSelection">
+            <div className="sectionHeader">
+                <div className="sectionHeaderLine"></div>
+                <p className="sectionHeaderText">Select Cloud Platform</p>
+            </div>
+
+            <div className={`cloudPlatformSelection ${selectedCloud != null ? 'minimize' : ''}`}>
                 <div
-                    className={`cloudCard ${selectedCloud === 'Azure' ? 'selected' : ''}`}
+                    className={`cloudCard ${selectedCloud === 'Azure' ? 'selected' : ''} ${selectedCloud != null ? 'minimize' : ''}`}
                     onClick={() => handleCloudSelect('Azure')}
                 >
                     <h1 className="cloudTitle">Azure</h1>
@@ -23,7 +28,7 @@ const SelectCloudPlatform: React.FC = () => {
                 </div>
 
                 <div
-                    className={`cloudCard ${selectedCloud === 'AWS' ? 'selected' : ''}`}
+                    className={`cloudCard ${selectedCloud === 'AWS' ? 'selected' : ''} ${selectedCloud != null ? 'minimize' : ''}`}
                     onClick={() => handleCloudSelect('AWS')}
                 >
                     <h1 className="cloudTitle">AWS</h1>
@@ -31,7 +36,17 @@ const SelectCloudPlatform: React.FC = () => {
                 </div>
             </div>
 
-            <GetQuestionsComponent selectedCloud={selectedCloud} />
+            {selectedCloud && (
+                <div className="selectCertificationContainer">
+                    <div className="sectionHeader">
+                        <div className="sectionHeaderLine"></div>
+                        <p className="sectionHeaderText">Select Certification</p>
+                    </div>
+                    {/* The code to display the certification cards will go here */}
+                </div>
+            )}
+
+            {selectedCloud && <GetQuestionsComponent selectedCloud={selectedCloud} />}
         </div>
     );
 };

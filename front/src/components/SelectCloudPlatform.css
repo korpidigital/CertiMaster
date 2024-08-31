@@ -1,12 +1,90 @@
 .selectCloudPlatformContainer {
     width: 100%;
     margin-bottom: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #282c34;
+    border-radius: 10px;
+    position: relative;
+}
+
+.sectionHeader {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+}
+
+.sectionHeaderLine {
+    position: absolute; /* Ensure it's positioned relative to the container */
+    bottom: 0;
+    left: 0; /* Start from the left */
+    height: 1px;
+    background-color: #ffd700;
+    width: 0; /* Start with zero width */
+    animation: growLine 1s forwards;
+}
+
+.sectionHeaderText {
+    font-size: 0.9rem;
+    color: #ffd700;
+    position: absolute;
+    right: 0;
+    top: -10px;
+    opacity: 0;
+    animation: fadeInText 0.3s forwards;
+    animation-delay: 0.3s;
+    white-space: nowrap;
+}
+
+@keyframes growLine {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes fadeInText {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .cloudPlatformSelection {
     display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+    opacity: 0;
+    animation: fadeInCards 1s forwards;
+    animation-delay: 0.3s; /* Start after the line and text animations */
+}
+.cloudPlatformSelection.minimize{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+    height: 50px;
+}
+
+@keyframes fadeInCards {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .cloudCard {
@@ -19,16 +97,25 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin: 20px;
     padding: 20px;
     width: 200px;
     height: 200px;
+    margin: 10px;
+}
+
+.cloudCard:hover {
+    transform: scale(1.02);
 }
 
 .cloudCard.selected {
     transform: scale(1.1);
     border: 2px solid #4CAF50;
     background-color: #00796b;
+}
+
+.cloudCard.minimize {
+    transform: scale(0.4);
+    margin-top: -100px;
 }
 
 .cloudBadge {
@@ -41,4 +128,23 @@
     color: #ffffff;
     text-align: center;
     margin-top: 10px;
+}
+
+.selectCertificationContainer {
+    width: 100%;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    animation: fadeInCertifications 1s forwards;
+}
+
+@keyframes fadeInCertifications {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }

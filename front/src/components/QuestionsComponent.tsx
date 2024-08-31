@@ -143,7 +143,7 @@ const GetQuestionsComponent: React.FC<{ selectedCloud: string | null }> = ({ sel
                     cloud={selectedCloud}
                 />
             ) : (
-                <p>Please select a cloud platform to proceed.</p>
+                <br/>
             )}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {showQuestions && filteredQuestions.length > 0 && (

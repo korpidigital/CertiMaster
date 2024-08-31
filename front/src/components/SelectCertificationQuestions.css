@@ -12,11 +12,14 @@ body {
     margin-bottom: 20px;
 }
 
-
-h1, h2, h3 {
-    color: #ffd700; /* Gold color for headings */
-    text-align: center;
+.certificationSelection {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+    margin-top: -50px;
 }
+
 
 .certificationCard {
     display: flex;
@@ -28,57 +31,64 @@ h1, h2, h3 {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin: 50px 100px;
-    
+    margin: 20px;
+    padding: 20px;
+    width: 200px;
+    height: 200px;
 }
+    
 
 .certificationCard:hover {
     transform: scale(1.02);
 }
 
 .certificationCard.selected {
-    transform: scale(0.3);
+    transform: scale(1.1);
     border: 2px solid #4CAF50;
     background-color: #00796b;
-    margin-top: -150px;
-    margin-bottom: -150px;
+}
+.certificationCard.minimize {
+    transform: scale(0.4);
+    margin-top: -90px;
 }
 
 .certificationBadge {
-    width: 150px;
+    width: 100px;
     height: auto;
 }
 
 .certificationTitle {
-    font-size: 3rem;
+    font-size: 1rem;
     color: #ffffff;
     text-align: center;
+    margin-top: 10px;
 }
 
 .filterButtons {
     display: flex;
+    justify-content: center;
     gap: 10px;
     margin-bottom: 10px;
 }
 
 .filterButtons .selectAllButton {
-    flex: 1;
-    padding: 14px 22px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    background-color: #4CAF50; /* Green for select all */
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s ease, transform 0.2s ease;
+   background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
     position: relative;
+    padding-right: 40px;
+    width: 200px;
 }
 
 .filterButtons .selectAllButton.selected::after {
     content: '✔';
     position: absolute;
-    top: 50%;
+    top: 40%;
     right: 15px;
     transform: translateY(-50%);
     font-size: 1.2rem;
@@ -86,23 +96,23 @@ h1, h2, h3 {
 }
 
 .filterButtons .unselectAllButton {
-    flex: 1;
-    padding: 14px 22px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    background-color: #f44336; /* Red for unselect all */
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
     position: relative;
+    padding-right: 40px;
+    width: 200px;
 }
 
 .filterButtons .unselectAllButton.selected::after {
     content: '✔';
     position: absolute;
-    top: 50%;
+    top: 40%;
     right: 15px;
     transform: translateY(-50%);
     font-size: 1.2rem;
@@ -186,9 +196,9 @@ button.generateQuestionsButton {
     width: 100%;
     padding: 20px 12px;
     margin: 30px 0; /* Space between buttons */
-    background-color: #ffd700; /* Gold/yellow background on hover */
-    color: #000; /* Black text on hover */
-    border: 1px solid transparent; /* Maintain button shape */
+    background-color: transparent; /* Gold/yellow background on hover */
+    color: #ffffff; /* Black text on hover */
+    border: 1px solid #ffffff; /* Maintain button shape */
     text-align: center;
     cursor: pointer;
     font-size: 20px;
@@ -214,7 +224,7 @@ button.generateQuestionsButton:disabled {
     align-items: center;
     cursor: pointer;
     padding: 10px;
-    background-color: #3a3a4a;
+    background-color: #1e1e2e;
     border-radius: 8px;
     transition: background-color 0.3s ease;
 }
@@ -235,13 +245,16 @@ button.generateQuestionsButton:disabled {
 .filterSection.open {
     max-height: 1000px; /* A large enough value to accommodate the content */
     opacity: 1;
+    padding: 10px;
 }
 
 .filtterAccordion {
-    background-color: #3a3a4a; /* Slightly lighter background */
+    background-color: #1e1e2e;
     padding: 20px 20px;
     border-radius: 8px;
     margin-bottom: 20px;
-    margin-top: 20px;
-    transition: padding 0.3s ease; /* Optional: Adjust padding during open/close */
+    margin-top: -90px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-width: 900px;
 }

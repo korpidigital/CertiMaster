@@ -113,11 +113,11 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
     const certifications = cloud === 'Azure' ? ['AZ-204', 'AI-900'] : ['AWS Certified Developer', 'AWS Certified Solutions Architect']; // Example AWS certifications
 
     return (
-        <div className="selectCertificationContainer">
-            <div className="certificationSelection">
+        <div className="selectCertificationContainer">  
+            <div className={`certificationSelection ${certification != '' ? 'minimize' : ''}`}>
                 {certifications.includes('AZ-204') && (
                     <div
-                        className={`certificationCard ${certification === 'AZ-204' ? 'selected' : ''}`}
+                        className={`certificationCard ${certification === 'AZ-204' ? 'selected' : ''} ${certification != '' ? 'minimize' : ''}`}
                         onClick={() => handleCertificationClick('AZ-204', az204Data)}
                     >
                         <h1 className="certificationTitle">AZ-204</h1>
@@ -128,7 +128,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
 
                 {certifications.includes('AI-900') && (
                     <div
-                        className={`certificationCard ${certification === 'AI-900' ? 'selected' : ''}`}
+                        className={`certificationCard ${certification === 'AI-900' ? 'selected' : ''} ${certification != '' ? 'minimize' : ''}`}
                         onClick={() => handleCertificationClick('AI-900', ai900Data)}
                     >
                         <h1 className="certificationTitle">AI-900</h1>
