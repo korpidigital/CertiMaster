@@ -113,11 +113,18 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
     const certifications = cloud === 'Azure' ? ['AZ-204', 'AI-900'] : ['AWS Certified Developer', 'AWS Certified Solutions Architect']; // Example AWS certifications
 
     return (
-        <div className="selectCertificationContainer">  
-            <div className={`certificationSelection ${certification != '' ? 'minimize' : ''}`}>
+        <div className="selectCertificationContainer">
+            <div className="selectCertificationContainer">
+                <div className={`sectionHeader ${certification != '' ? 'hide' : ''}`}>
+                    <div className="sectionHeaderLine"></div>
+                    <p className="sectionHeaderText">Select Certification</p>
+                </div>
+                {/* The code to display the certification cards will go here */}
+            </div>
+            <div className={`certificationSelection`}>
                 {certifications.includes('AZ-204') && (
                     <div
-                        className={`certificationCard ${certification === 'AZ-204' ? 'selected' : ''} ${certification != '' ? 'minimize' : ''}`}
+                        className={`certificationCard ${certification === 'AZ-204' ? 'selected' : ''} ${certification != '' && certification != 'AZ-204' ? 'hide' : ''}`}
                         onClick={() => handleCertificationClick('AZ-204', az204Data)}
                     >
                         <h1 className="certificationTitle">AZ-204</h1>
@@ -128,7 +135,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
 
                 {certifications.includes('AI-900') && (
                     <div
-                        className={`certificationCard ${certification === 'AI-900' ? 'selected' : ''} ${certification != '' ? 'minimize' : ''}`}
+                        className={`certificationCard locked ${certification === 'AI-900' ? 'selected' : ''} ${certification != '' && certification != 'AI-900' ? 'hide' : ''}`}
                         onClick={() => handleCertificationClick('AI-900', ai900Data)}
                     >
                         <h1 className="certificationTitle">AI-900</h1>
@@ -148,91 +155,97 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
             {error && <p className="errorMessage">{error}</p>}
 
             {isCertificationSelected && !loading && (
-                <div className="filtterAccordion">
-                    <div className="accordionHeader" onClick={() => setIsFilterSectionOpen(!isFilterSectionOpen)}>
-                        <h2>Filter {certification} Questions</h2>
-                        <FontAwesomeIcon
-                            icon={isFilterSectionOpen ? faChevronUp : faChevronDown}
-                            className="accordionArrow"
-                        />
+                <>
+                    <div className="sectionHeader questions">
+                        <div className="sectionHeaderLine"></div>
+                        <p className="sectionHeaderText">Generate Questions</p>
                     </div>
+                    <div className="filtterAccordion">
+                        <div className="accordionHeader" onClick={() => setIsFilterSectionOpen(!isFilterSectionOpen)}>
+                            <h2>Filter {certification} Questions</h2>
+                            <FontAwesomeIcon
+                                icon={isFilterSectionOpen ? faChevronUp : faChevronDown}
+                                className="accordionArrow"
+                            />
+                        </div>
 
-                    <div className={`filterSection ${isFilterSectionOpen ? 'open' : ''}`}>
-                        <div className="filterSubSection">
-                            <h3>Question Types</h3>
-                            <div className="filterButtons">
-                                <button
-                                    className={`selectAllButton ${selectedTypes.length === types.length ? 'selected' : ''}`}
-                                    onClick={() => selectAll(types, setSelectedTypes)}
-                                >
-                                    Select All
-                                </button>
-                                <button
-                                    className={`unselectAllButton ${selectedTypes.length === 0 ? 'selected' : ''}`}
-                                    onClick={() => deselectAll(setSelectedTypes)}
-                                >
-                                    Deselect All
-                                </button>
-                            </div>
-                            <div className="filterOptionsContainer">
-                                {types.map((type) => (
-                                    <div
-                                        key={type}
-                                        className={`filterOption ${selectedTypes.includes(type) ? 'selected' : ''}`}
-                                        onClick={() => toggleSelection(type, selectedTypes, setSelectedTypes)}
+                        <div className={`filterSection ${isFilterSectionOpen ? 'open' : ''}`}>
+                            <div className="filterSubSection">
+                                <h3>Question Types</h3>
+                                <div className="filterButtons">
+                                    <button
+                                        className={`selectAllButton ${selectedTypes.length === types.length ? 'selected' : ''}`}
+                                        onClick={() => selectAll(types, setSelectedTypes)}
                                     >
-                                        {type}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="filterSubSection">
-                            <h3>Question Topics</h3>
-                            <div className="filterButtons">
-                                <button
-                                    className={`selectAllButton ${selectedTopics.length === topics.length ? 'selected' : ''}`}
-                                    onClick={() => selectAll(topics, setSelectedTopics)}
-                                >
-                                    Select All
-                                </button>
-                                <button
-                                    className={`unselectAllButton ${selectedTopics.length === 0 ? 'selected' : ''}`}
-                                    onClick={() => deselectAll(setSelectedTopics)}
-                                >
-                                    Deselect All
-                                </button>
-                            </div>
-                            <div className="filterOptionsContainer">
-                                {topics.map((topic) => (
-                                    <div
-                                        key={topic}
-                                        className={`filterOption ${selectedTopics.includes(topic) ? 'selected' : ''}`}
-                                        onClick={() => toggleSelection(topic, selectedTopics, setSelectedTopics)}
+                                        Select All
+                                    </button>
+                                    <button
+                                        className={`unselectAllButton ${selectedTypes.length === 0 ? 'selected' : ''}`}
+                                        onClick={() => deselectAll(setSelectedTypes)}
                                     >
-                                        {topic}
-                                    </div>
-                                ))}
+                                        Deselect All
+                                    </button>
+                                </div>
+                                <div className="filterOptionsContainer">
+                                    {types.map((type) => (
+                                        <div
+                                            key={type}
+                                            className={`filterOption ${selectedTypes.includes(type) ? 'selected' : ''}`}
+                                            onClick={() => toggleSelection(type, selectedTypes, setSelectedTypes)}
+                                        >
+                                            {type}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                        <div className="filterSubSection">
-                            <h3>Select Number of Questions</h3>
-                            <div className="filterOptionsContainer">
-                                {[10, 20, 30, 40, 50].map((count) => (
-                                    <div
-                                        key={count}
-                                        className={`questionCountOption ${selectedQuestionCount === count ? 'selected' : ''}`}
-                                        onClick={() => setSelectedQuestionCount(count)}
+                            <div className="filterSubSection">
+                                <h3>Question Topics</h3>
+                                <div className="filterButtons">
+                                    <button
+                                        className={`selectAllButton ${selectedTopics.length === topics.length ? 'selected' : ''}`}
+                                        onClick={() => selectAll(topics, setSelectedTopics)}
                                     >
-                                        {count}
-                                    </div>
-                                ))}
+                                        Select All
+                                    </button>
+                                    <button
+                                        className={`unselectAllButton ${selectedTopics.length === 0 ? 'selected' : ''}`}
+                                        onClick={() => deselectAll(setSelectedTopics)}
+                                    >
+                                        Deselect All
+                                    </button>
+                                </div>
+                                <div className="filterOptionsContainer">
+                                    {topics.map((topic) => (
+                                        <div
+                                            key={topic}
+                                            className={`filterOption ${selectedTopics.includes(topic) ? 'selected' : ''}`}
+                                            onClick={() => toggleSelection(topic, selectedTopics, setSelectedTopics)}
+                                        >
+                                            {topic}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
+                            <div className="filterSubSection">
+                                <h3>Select Number of Questions</h3>
+                                <div className="filterOptionsContainer">
+                                    {[10, 20, 30, 40, 50].map((count) => (
+                                        <div
+                                            key={count}
+                                            className={`questionCountOption ${selectedQuestionCount === count ? 'selected' : ''}`}
+                                            onClick={() => setSelectedQuestionCount(count)}
+                                        >
+                                            {count}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <button className="generateQuestionsButton" onClick={handleGenerate} disabled={loading}>
+                                Generate Questions
+                            </button>
                         </div>
-                        <button className="generateQuestionsButton" onClick={handleGenerate} disabled={loading}>
-                            Generate Questions
-                        </button>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );

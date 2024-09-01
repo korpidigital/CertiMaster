@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './QuestionNavigator.css';
 import { useAtom } from 'jotai';
 import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom } from '../atoms';
@@ -10,14 +10,12 @@ interface QuestionNavigatorProps {
     questions: Question[];
     onApprove: (id: string) => void;
     onDelete: (id: string, certification: string) => void;
-    scrollToInfo?: boolean;
 }
 
 export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
     questions,
     onApprove,
     onDelete,
-    scrollToInfo = false,
 }) => {
     const [currentIndex, setCurrentIndex] = React.useState(0);
     const [selectedOptionsPerQuestion, setSelectedOptionsPerQuestion] = useAtom(selectedOptionsPerQuestionAtom);
@@ -26,13 +24,6 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
     const totalQuestions = questions.length;
     const currentQuestion = questions[currentIndex];
 
-    const questionInfoRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (scrollToInfo && questionInfoRef.current) {
-            questionInfoRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [scrollToInfo]);
 
     useEffect(() => {
         if (selectedOptionsPerQuestion.length === 0) {
@@ -153,7 +144,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
 
     return (
         <div>
-            <div className='questionInfo' ref={questionInfoRef}>
+            <div className='questionInfo'>
                 <div className="infoBlock">
                     <div className="infoItem">
                         <FontAwesomeIcon icon={faBook} />

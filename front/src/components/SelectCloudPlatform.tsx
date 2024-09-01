@@ -13,14 +13,14 @@ const SelectCloudPlatform: React.FC = () => {
 
     return (
         <div className="selectCloudPlatformContainer">
-            <div className="sectionHeader">
+            <div className={`sectionHeader ${selectedCloud != null  ? 'hide' : ''}`}>
                 <div className="sectionHeaderLine"></div>
                 <p className="sectionHeaderText">Select Cloud Platform</p>
             </div>
 
-            <div className={`cloudPlatformSelection ${selectedCloud != null ? 'minimize' : ''}`}>
+            <div className={`cloudPlatformSelection ${selectedCloud != null ? 'hide' : ''}`}>
                 <div
-                    className={`cloudCard ${selectedCloud === 'Azure' ? 'selected' : ''} ${selectedCloud != null ? 'minimize' : ''}`}
+                    className={`cloudCard ${selectedCloud === 'Azure' ? 'selected' : ''} ${selectedCloud != null && selectedCloud != 'Azure' ? 'hide' : ''}`}
                     onClick={() => handleCloudSelect('Azure')}
                 >
                     <h1 className="cloudTitle">Azure</h1>
@@ -28,7 +28,7 @@ const SelectCloudPlatform: React.FC = () => {
                 </div>
 
                 <div
-                    className={`cloudCard ${selectedCloud === 'AWS' ? 'selected' : ''} ${selectedCloud != null ? 'minimize' : ''}`}
+                    className={`cloudCard coming-soon ${selectedCloud === 'AWS' ? 'selected' : ''} ${selectedCloud != null && selectedCloud != 'AWS' ? 'hide' : ''}`}
                     onClick={() => handleCloudSelect('AWS')}
                 >
                     <h1 className="cloudTitle">AWS</h1>
@@ -36,15 +36,7 @@ const SelectCloudPlatform: React.FC = () => {
                 </div>
             </div>
 
-            {selectedCloud && (
-                <div className="selectCertificationContainer">
-                    <div className="sectionHeader">
-                        <div className="sectionHeaderLine"></div>
-                        <p className="sectionHeaderText">Select Certification</p>
-                    </div>
-                    {/* The code to display the certification cards will go here */}
-                </div>
-            )}
+
 
             {selectedCloud && <GetQuestionsComponent selectedCloud={selectedCloud} />}
         </div>

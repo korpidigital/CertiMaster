@@ -15,9 +15,10 @@ body {
 .certificationSelection {
     display: flex;
     justify-content: center;
-    width: 100%;
-    margin-bottom: 20px;
-    margin-top: -50px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+    position: relative;
 }
 
 
@@ -31,10 +32,13 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin: 20px;
     padding: 20px;
     width: 200px;
     height: 200px;
+    margin: 10px;
+    color: #ffffff; /* Default text color */
+    position: relative; /* Default position relative to its container */
+    z-index: 1; /* Ensure it stays above other elements */
 }
     
 
@@ -43,13 +47,18 @@ body {
 }
 
 .certificationCard.selected {
-    transform: scale(1.1);
-    border: 2px solid #4CAF50;
-    background-color: #00796b;
-}
-.certificationCard.minimize {
     transform: scale(0.4);
-    margin-top: -90px;
+    position: absolute;
+    top: -230px;
+    left: -410px;
+    z-index: 10;
+}
+.certificationCard.selected:hover {
+    transform: scale(0.45);
+}
+
+.certificationCard.hide {
+    display: none;
 }
 
 .certificationBadge {
@@ -253,8 +262,59 @@ button.generateQuestionsButton:disabled {
     padding: 20px 20px;
     border-radius: 8px;
     margin-bottom: 20px;
-    margin-top: -90px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-width: 860px;
+}
+
+.sectionHeader {
+    position: relative;
+    width: 100%;
     min-width: 900px;
+}
+
+.sectionHeader.questions {
+    top: -40px;
+}
+
+.sectionHeader.hide {
+    display: none;
+}
+
+.certificationCard.locked {
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.certificationCard.locked::before {
+    content: "LOCKED 🔒 SUBSCRIBE";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    background-color: rgba(246, 251, 85, 0.85);
+    color: #ffffff;
+    padding: 10px 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-align: center;
+    width: 150%;
+    z-index: 2;
+    text-shadow: 0 0 3px #000000, 0 0 3px #000000;
+}
+
+.certificationCard.locked::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.certificationCard.locked:hover {
+    transform: none;
+    cursor: not-allowed;
 }
