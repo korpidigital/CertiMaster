@@ -8,4 +8,5 @@ export { submissionStateAtom } from './selectedOptionsAtom';
 export { questionSubmissionStateAtom } from './selectedOptionsAtom';
 export { selectedOptionsPerQuestionAtom } from './selectedOptionsAtom';
 export { certificationCountAtom } from './certificationAtom';
-export { isSubscriptionActiveAtom } from './subscribtionAtom';
+export { isSubscriptionActiveAtom } from './userAtom.ts';
+export { userEmailAtom } from './userAtom.ts';
