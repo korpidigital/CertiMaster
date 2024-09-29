@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { useAtom } from 'jotai';
 import { SyncLoader } from 'react-spinners';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import {
   isSubscriptionActiveAtom,
   certificationCountAtom,
   questionCountAtom,
-  userEmailAtom, // Import the userEmailAtom
+  userEmailAtom,
 } from '../atoms';
 import './NotificationBox.css';
 import { Stripe, loadStripe } from '@stripe/stripe-js';
@@ -16,8 +18,9 @@ const NotificationBox: React.FC = () => {
   const [isSubscriptionActive] = useAtom(isSubscriptionActiveAtom);
   const [certifications, setCertifications] = useAtom(certificationCountAtom);
   const [questions, setQuestions] = useAtom(questionCountAtom);
-  const [userEmail] = useAtom(userEmailAtom); // Use the userEmailAtom from Jotai
+  const [userEmail] = useAtom(userEmailAtom);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -97,14 +100,38 @@ const NotificationBox: React.FC = () => {
     }
   };
 
-  if (isAuthenticated && isSubscriptionActive) {
-    return null; // No need to show the notification if user is subscribed
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  if (isAuthenticated && isSubscriptionActive && !isExpanded) {
+    return (
+      <div className="notification-bar minimized">
+        <FontAwesomeIcon icon={faInfoCircle} onClick={toggleExpanded} />
+      </div>
+    );
   }
 
   return (
-    <div className="notification-bar">
+    <div className={`notification-bar ${isExpanded ? 'expanded' : ''}`}>
       <div className="notification-text">
-        {isAuthenticated ? (
+        {isAuthenticated && isSubscriptionActive ? (
+          <>
+            <div>FULL ACCESS!</div>
+            <br />
+            {isLoading ? (
+              <SyncLoader color="#ffffff" loading={isLoading} size={10} />
+            ) : (
+              <>
+                <div>{ } Cloud Providers</div>
+                <div>{certifications} Certifications</div>
+                <div>{questions} Questions</div>
+              </>
+            )}
+            <br />
+            <div>More coming weekly.</div>
+          </>
+        ) : isAuthenticated ? (
           <>
             <div>GET FULL ACCESS! 4€/mo</div>
             <button onClick={handleSubscribe}>Subscribe Now</button>
@@ -112,12 +139,14 @@ const NotificationBox: React.FC = () => {
               <SyncLoader color="#ffffff" loading={isLoading} size={10} />
             ) : (
               <>
-                <div>{certifications} certifications</div>
-                <div>{questions} questions</div>
+                <div>{ } Cloud Providers</div>
+                <div>{certifications} Certifications</div>
+                <div>{questions} Questions</div>
               </>
             )}
             <br />
-            <div>More coming weekly</div>
+            <div>Cancel any time.</div>
+            <div>More coming weekly.</div>
           </>
         ) : (
           <>
@@ -138,6 +167,9 @@ const NotificationBox: React.FC = () => {
           </>
         )}
       </div>
+      {(isAuthenticated && isSubscriptionActive) && (
+        <FontAwesomeIcon icon={faInfoCircle} onClick={toggleExpanded} className="toggle-icon" />
+      )}
     </div>
   );
 };

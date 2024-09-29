@@ -16,8 +16,19 @@
     transform: translateX(-100%); /* Start position: off-screen to the left */
     animation: slideIn 0.5s forwards; /* Slide in animation */
     opacity: 0.85;
+    transition: all 0.5s ease;
+    width: 150px;
+    height: 200px;
   }
   
+  .notification-bar.minimized {
+      transform: translateX(-100%);
+      width: 20px;
+      height: 20px;
+      padding: 10px;
+      border-radius: 0 20px 20px 0;
+  }
+
   @keyframes slideIn {
     to {
       transform: translateX(0); /* End position: fully visible */
@@ -49,4 +60,11 @@
   
   .notification-text button:hover {
     background-color: rgba(255, 255, 255, 0.1); /* Slightly visible background on hover */
+  }
+
+  .toggle-icon {
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
