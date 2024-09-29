@@ -30,6 +30,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
     const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(10); // Default to 10 questions
     const [isCertificationSelected, setIsCertificationSelected] = useState<boolean>(false); // Track if certification is selected
     const [isFilterSectionOpen, setIsFilterSectionOpen] = useState<boolean>(true); // Control the accordion state
+    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
     useEffect(() => {
         if (certification) {
@@ -41,6 +42,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
         setCertification(certi);
         setLoading(true);
         setError(null);
+        setDataLoaded(false);
 
         try {
             const response = await fetch(`http://localhost:7071/api/GetQuestions?certification=${encodeURIComponent(certi)}`, {
@@ -56,6 +58,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
                     setQuestions(data);
                     setIsCertificationSelected(true); // Set certification as selected upon successful fetch
                     setIsFilterSectionOpen(true); // Open filter section when certification is selected
+                    setDataLoaded(true);
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
                     setError('Failed to parse response as JSON');
@@ -154,7 +157,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
             )}
             {error && <p className="errorMessage">{error}</p>}
 
-            {isCertificationSelected && !loading && (
+            {isCertificationSelected && !loading && dataLoaded && (
                 <>
                     <div className="sectionHeader questions">
                         <div className="sectionHeaderLine"></div>
