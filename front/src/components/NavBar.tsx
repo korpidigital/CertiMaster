@@ -111,7 +111,14 @@ const NavBar: React.FC = () => {
             console.error('User email is missing. Unable to cancel subscription.');
             return;
         }
-    
+
+        // Add confirmation dialog
+        const isConfirmed = window.confirm("Are you sure you want to cancel your CertiMaster subscription?");
+
+        if (!isConfirmed) {
+            return; // If the user clicks "Cancel" in the confirm dialog, do nothing
+        }
+
         try {
             const response = await fetch('http://localhost:7071/api/cancelSubscription', {
                 method: 'POST',
@@ -120,14 +127,14 @@ const NavBar: React.FC = () => {
                 },
                 body: JSON.stringify({ email: userEmail }),
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Server responded with an error: ${response.status} ${response.statusText}`);
             }
-    
+
             const result = await response.json();
             console.log('Subscription cancellation result:', result);
-    
+
             alert('Your subscription has been cancelled successfully. The page will now reload.');
             window.location.reload();
         } catch (error) {
