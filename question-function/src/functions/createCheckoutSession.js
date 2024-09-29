@@ -24,6 +24,14 @@ app.http('createCheckoutSession', {
         };
       }
 
+      // Find or create a customer
+      let customer = await stripe.customers.list({ email: email, limit: 1 });
+      if (customer.data.length === 0) {
+        customer = await stripe.customers.create({ email: email });
+      } else {
+        customer = customer.data[0];
+      }
+
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
         payment_method_types: ['card'],
@@ -33,7 +41,7 @@ app.http('createCheckoutSession', {
             quantity: 1,
           },
         ],
-        customer_email: email,
+        customer: customer.id,
         success_url: 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
         cancel_url: 'http://localhost:5173/',
       });

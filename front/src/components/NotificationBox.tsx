@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useIsAuthenticated } from '@azure/msal-react';
+import { useIsAuthenticated, useMsal } from '@azure/msal-react';
 import { useAtom } from 'jotai';
 import { SyncLoader } from 'react-spinners';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,12 +15,21 @@ import { Stripe, loadStripe } from '@stripe/stripe-js';
 
 const NotificationBox: React.FC = () => {
   const isAuthenticated = useIsAuthenticated();
+  const { instance } = useMsal();
   const [isSubscriptionActive] = useAtom(isSubscriptionActiveAtom);
   const [certifications, setCertifications] = useAtom(certificationCountAtom);
   const [questions, setQuestions] = useAtom(questionCountAtom);
   const [userEmail] = useAtom(userEmailAtom);
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleSignIn = () => {
+    instance.loginPopup({
+        scopes: ["openid", "profile", "email"],
+    }).catch((e) => {
+        console.error(e);
+    });
+};
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -44,12 +53,7 @@ const NotificationBox: React.FC = () => {
     fetchCounts();
   }, [setCertifications, setQuestions]);
 
-  const handleSignIn = () => {
-    // Implement sign-in functionality
-  };
-
   const stripePromise = loadStripe(import.meta.env.VITE_PUBLISH_KEY_STRIPE);
-
   const handleSubscribe = async () => {
     if (!userEmail) {
       console.error('User email is missing. Unable to create a Stripe checkout session.');
@@ -158,12 +162,12 @@ const NotificationBox: React.FC = () => {
               <SyncLoader color="#ffffff" loading={isLoading} size={10} />
             ) : (
               <>
-                <div>{certifications} certifications</div>
-                <div>{questions} questions</div>
+                <div>{certifications} Certifications</div>
+                <div>{questions} Questions</div>
               </>
             )}
             <br />
-            <div>More coming weekly</div>
+            <div>More coming weekly.</div>
           </>
         )}
       </div>

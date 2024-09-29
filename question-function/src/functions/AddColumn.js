@@ -52,3 +52,26 @@ app.http('AddSourceColumn', {
         }
     }
 });
+
+app.http('AddCloudProviderColumn', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    handler: async (request, context) => {
+        context.log('HTTP function triggered to add "cloudProvider" column with default value "Azure" to all entities.');
+
+        try {
+            const entities = tableClient.listEntities();
+
+            for await (const entity of entities) {
+                entity.cloudProvider = "Azure"; // Add the "cloudProvider" column with default value "Azure"
+                await tableClient.updateEntity(entity, "Merge");
+                context.log(`Updated entity with PartitionKey: ${entity.partitionKey} and RowKey: ${entity.rowKey}`);
+            }
+
+            return { status: 200, body: 'All entities updated with "cloudProvider" column set to "Azure".' };
+        } catch (error) {
+            context.log('Error updating entities in Table Storage', error);
+            return { status: 500, body: 'Error updating entities in Table Storage' };
+        }
+    }
+});
