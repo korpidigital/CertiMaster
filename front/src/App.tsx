@@ -8,7 +8,7 @@ import SelectCloudPlatform from './components/SelectCloudPlatform';
 import { isSubscriptionActiveAtom, userEmailAtom } from './atoms';
 import { useAtom } from 'jotai';
 
-const AZURE_FUNCTION_URL = 'http://localhost:7071/api/createOrUpdateUser';
+const AZURE_FUNCTION_URL = `${import.meta.env.VITE_API_BASE_URL}/api/createOrUpdateUser`;
 
 function App() {
   const isAuthenticated = useIsAuthenticated();

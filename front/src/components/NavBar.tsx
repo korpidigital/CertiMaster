@@ -57,7 +57,7 @@ const NavBar: React.FC = () => {
         console.log('Request Body:', requestBody);
 
         try {
-            const response = await fetch('http://localhost:7071/api/createCheckoutSession', {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/createCheckoutSession`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ const NavBar: React.FC = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:7071/api/cancelSubscription', {
+            const response = await fetch(import.meta.env.VITE_API_BASE_URL+'/api/cancelSubscription', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

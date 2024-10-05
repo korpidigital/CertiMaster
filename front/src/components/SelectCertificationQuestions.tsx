@@ -45,7 +45,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
         setDataLoaded(false);
 
         try {
-            const response = await fetch(`http://localhost:7071/api/GetQuestions?certification=${encodeURIComponent(certi)}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/GetQuestions?certification=${encodeURIComponent(certi)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

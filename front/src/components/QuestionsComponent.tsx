@@ -75,7 +75,7 @@ const GetQuestionsComponent: React.FC<{ selectedCloud: string | null }> = ({ sel
             );
 
             try {
-                const response = await fetch(`http://localhost:7071/api/UpdateQuestionApproval`, {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/UpdateQuestionApproval`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -108,7 +108,7 @@ const GetQuestionsComponent: React.FC<{ selectedCloud: string | null }> = ({ sel
 
     const handleDelete = async (id: string, certification: string) => {
         try {
-            await fetch(`http://localhost:7071/api/DeleteQuestion?id=${id}&certification=${encodeURIComponent(certification)}`, {
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/DeleteQuestion?id=${id}&certification=${encodeURIComponent(certification)}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

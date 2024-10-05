@@ -24,6 +24,9 @@ app.http('createCheckoutSession', {
         };
       }
 
+      // Check the environment and select the appropriate frontend URL
+      const frontendUrl = process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL_PROD : process.env.FRONTEND_URL_DEV;
+
       // Find or create a customer
       let customer = await stripe.customers.list({ email: email, limit: 1 });
       if (customer.data.length === 0) {
@@ -42,8 +45,8 @@ app.http('createCheckoutSession', {
           },
         ],
         customer: customer.id,
-        success_url: 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
-        cancel_url: 'http://localhost:5173/',
+        success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${frontendUrl}/`,
       });
 
       return {
