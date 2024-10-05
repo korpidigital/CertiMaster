@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { useIsAuthenticated, useMsal } from '@azure/msal-react';
 import { AccountInfo, InteractionStatus } from '@azure/msal-browser';

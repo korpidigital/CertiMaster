@@ -293,11 +293,21 @@ async function generateAllQuestionsFromFile(filePath, numPairs, source) {
 
 ///////////////// QuestionsToStorage Function /////////////////////////////////////
 // POST
+const isQuestionsToStorageDisabled = true;
 
 app.http('QuestionsToStorage', {
     methods: ['POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
+        // DO NOT RUN if disabled
+        if (isQuestionsToStorageDisabled) {
+            context.log(`QuestionsToStorage function is currently disabled.`);
+            return {
+                status: 503,
+                body: "This function is temporarily disabled.",
+            };
+        }
+
         context.log(`HTTP function processed request for URL "${request.url}"`);
 
         let body;

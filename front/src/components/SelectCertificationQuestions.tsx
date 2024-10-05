@@ -19,7 +19,7 @@ interface SelectCertificationQuestionsProps {
 export default function SelectCertificationQuestions({ onGenerateQuestions, cloud }: SelectCertificationQuestionsProps) {
     const [certification, setCertification] = useAtom(certificationAtom);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [questions, setQuestions] = useAtom(questionsAtom);
+    const [, setQuestions] = useAtom(questionsAtom);
     const [loading, setLoading] = useAtom(loadingAtom);
     const [error, setError] = useAtom(errorAtom);
 
