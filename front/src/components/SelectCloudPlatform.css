@@ -91,10 +91,21 @@
 .cloudCard.selected {
     transform: scale(0.4);
     position: absolute;
-    top: -190px;
-    left: -530px;
+    top: -190px; /* Default top value */
+    left: -530px; /* Default left value */
     z-index: 10;
-}
+    transition: all 0.3s ease-in-out; /* Smooth transition for changes */
+  }
+  
+/* Media query for screens smaller than 975px */
+@media (max-width: 975px) {
+    .cloudCard.selected {
+      /* Adjust the left value more gradually by dividing the adjustment */
+      left: calc(-530px + ((975px - 100vw) / 2)); /* Adjust left with a slower rate */
+      transition: left 0.3s ease-in-out; /* Smooth transition for left property */
+    }
+  }
+
 .cloudPlatformSelection.hide{
     height: 0px;
 }
