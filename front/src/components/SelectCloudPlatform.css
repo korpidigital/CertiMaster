@@ -9,26 +9,30 @@
     border-radius: 10px;
     position: relative;
 }
+@media (max-width: 1000px) {
+    .selectCloudPlatformContainer{
+      margin-left: -40px;
+    }
+  }
 
 .sectionHeader {
-    position: relative;
+    position: absolute;
     width: 100%;
     max-width: 900px;
-    /* margin-bottom: 20px; */
 }
 .sectionHeader.hide {
     display: none;
 }
 
 .sectionHeaderLine {
-    position: absolute; /* Ensure it's positioned relative to the container */
+    position: relative;
     bottom: 0;
-    left: 0; /* Start from the left */
+    right: 0;
     height: 1px;
     background-color: #ffd700;
-    width: 0; /* Start with zero width */
+    width: 0;
     animation: growLine 1s forwards;
-}
+  }
 
 .sectionHeaderText {
     font-size: 0.9rem;
@@ -97,11 +101,10 @@
     transition: all 0.3s ease-in-out; /* Smooth transition for changes */
   }
   
-/* Media query for screens smaller than 975px */
-@media (max-width: 975px) {
+@media (max-width: 1000px) {
     .cloudCard.selected {
       /* Adjust the left value more gradually by dividing the adjustment */
-      left: calc(-530px + ((975px - 100vw) / 2)); /* Adjust left with a slower rate */
+      left: calc(-530px + ((1000px - 100vw) / 2)); /* Adjust left with a slower rate */
       transition: left 0.3s ease-in-out; /* Smooth transition for left property */
     }
   }

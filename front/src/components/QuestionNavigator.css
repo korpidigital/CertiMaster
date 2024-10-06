@@ -12,6 +12,11 @@
     align-items: center;
     min-height: auto; /* Remove fixed height */
 }
+@media (max-width: 1000px) {
+    .questionInfo{
+      max-width: calc((80vw) / 1);
+    }
+  }
 
 .infoItem {
     display: flex;
@@ -48,8 +53,12 @@
     border-radius: 10px;
     background-color: #1e1e2e;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-
 }
+@media (max-width: 1000px) {
+    .questionText{
+      max-width: calc((80vw) / 1);
+    }
+  }
 
 .questionNumber {
     top: 300px;
@@ -68,6 +77,8 @@
     text-align: center; /* Centers the strong element horizontally */
     margin-bottom: 15px;
     line-height: 1.4;
+    word-break: normal; /* Prefer to break words at natural boundaries */
+    overflow-wrap: break-word;
 }
 
 .questionItem strong {
@@ -100,6 +111,17 @@
     display: flex;
     justify-content: space-around; /* Space the buttons out evenly */
 }
+@media (max-width: 1000px) {
+    .navigationButtons, .actionButtons{
+      max-width: calc((80vw) / 1);
+      flex-direction: column;
+      margin-right: auto; /* Center horizontally */
+      flex-direction: column; /* Stack items vertically */
+      align-items: center; /* Center items horizontally */
+      justify-content: center; /* Center items vertically */
+      gap: 15px; /* Optional: add space between items */
+    }
+  }
 
 .navigationButtons {
     padding: 12px 20px;
@@ -112,6 +134,11 @@
     background-color: #282c34;
     justify-content: space-between;
 }
+@media (max-width: 1000px) {
+    .navigationButtons{
+      max-width: calc((80vw) / 1);
+    }
+  }
 
 .moveButton {
     background-color: #282c34;

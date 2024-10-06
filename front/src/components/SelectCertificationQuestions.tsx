@@ -158,12 +158,12 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
             {error && <p className="errorMessage">{error}</p>}
 
             {isCertificationSelected && !loading && dataLoaded && (
-                <>
+                <div className="filtterAccordion">
                     <div className="sectionHeader questions">
                         <div className="sectionHeaderLine"></div>
                         <p className="sectionHeaderText">Generate Questions</p>
                     </div>
-                    <div className="filtterAccordion">
+                    <div className="accordionContainer">
                         <div className="accordionHeader" onClick={() => setIsFilterSectionOpen(!isFilterSectionOpen)}>
                             <h2>Filter {certification} Questions</h2>
                             <FontAwesomeIcon
@@ -248,7 +248,7 @@ export default function SelectCertificationQuestions({ onGenerateQuestions, clou
                             </button>
                         </div>
                     </div>
-                </>
+                </div>
             )}
         </div>
     );

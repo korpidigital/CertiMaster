@@ -10,7 +10,13 @@ body {
 .selectCertificationContainer {
     width: 100%;
     margin-bottom: 20px;
+    display: flex;
 }
+@media (max-width: 1000px) {
+    .selectCertificationContainer  {
+      max-width: calc(((100vw) / 1));
+    }
+  }
 
 .certificationSelection {
     display: flex;
@@ -53,6 +59,13 @@ body {
     left: -410px;
     z-index: 10;
 }
+@media (max-width: 1000px) {
+    .certificationCard.selected  {
+      /* Adjust the left value more gradually by dividing the adjustment */
+      left: calc(-530px + ((1250px - 100vw) / 2)); /* Adjust left with a slower rate */
+      transition: left 0.3s ease-in-out; /* Smooth transition for left property */
+    }
+  }
 .certificationCard.selected:hover {
     transform: scale(0.45);
 }
@@ -132,7 +145,13 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 10px;
+    display: flex;
 }
+@media (max-width: 1000px) {
+    .filterOptionsContainer {
+      flex-direction: column;
+    }
+  }
 
 .filterOption, .questionCountOption {
     padding: 15px;
@@ -227,6 +246,11 @@ button.generateQuestionsButton:disabled {
     box-shadow: none;
 }
 
+.accordionContainer {
+    display: flex;
+    flex-direction: column;
+}
+
 .accordionHeader {
     display: flex;
     justify-content: space-between;
@@ -252,30 +276,41 @@ button.generateQuestionsButton:disabled {
 }
 
 .filterSection.open {
-    max-height: 1000px; /* A large enough value to accommodate the content */
+    max-height: 2000px;
     opacity: 1;
     padding: 10px;
 }
 
 .filtterAccordion {
     background-color: #1e1e2e;
-    padding: 20px 20px;
+    padding-left: 20px;
+    padding-right: 20px;
     border-radius: 8px;
-    margin-bottom: 20px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    min-width: 860px;
 }
+@media (max-width: 1000px) {
+    .filtterAccordion{
+      min-width: calc((80vw) / 1);
+    }
+  }
+
 
 .sectionHeader {
     position: relative;
     width: 100%;
-    min-width: 900px;
 }
 
 .sectionHeader.questions {
-    top: -40px;
+    top: 40px;
+    max-width: 900px;
+    margin-left: -20px;
 }
+@media (max-width: 1000px) {
+    .sectionHeader.questions{
+      right: 10px;
+    }
+  }
 
 .sectionHeader.hide {
     display: none;

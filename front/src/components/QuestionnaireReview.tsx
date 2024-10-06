@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAtom } from 'jotai';
 import { questionSubmissionStateAtom } from '../atoms';
+import './QuestionnaireReview.css';
 
 const QuestionnaireReview: React.FC = () => {
     const [questionSubmissionState] = useAtom(questionSubmissionStateAtom);
@@ -14,7 +15,7 @@ const QuestionnaireReview: React.FC = () => {
     const score = (correctAnswers / totalQuestions) * 100;
 
     return (
-        <div>
+        <div className='reviewContainer'>
             <h2>Questionnaire Review</h2>
             <p>Total Questions: {totalQuestions}</p>
             <p>Correct Answers: {correctAnswers}</p>

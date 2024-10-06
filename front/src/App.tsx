@@ -7,6 +7,7 @@ import NotificationBox from './components/NotificationBox';
 import SelectCloudPlatform from './components/SelectCloudPlatform';
 import { isSubscriptionActiveAtom, userEmailAtom } from './atoms';
 import { useAtom } from 'jotai';
+import { ToastContainer } from 'react-toastify';
 
 const AZURE_FUNCTION_URL = `${import.meta.env.VITE_API_BASE_URL}/api/createOrUpdateUser`;
 
@@ -81,6 +82,7 @@ function App() {
       <NotificationBox />
       <NavBar />
       {isAuthenticated && <SelectCloudPlatform />}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
     </div>
   );
 }

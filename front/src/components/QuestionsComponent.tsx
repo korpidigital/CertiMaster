@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { QuestionNavigator } from './QuestionNavigator';
-import { questionsAtom, errorAtom, questionSubmissionStateAtom } from '../atoms';
+import { questionsAtom, errorAtom, questionSubmissionStateAtom, selectedOptionsPerQuestionAtom } from '../atoms';
 import SelectCertificationQuestions from './SelectCertificationQuestions';
 import QuestionnaireReview from './QuestionnaireReview';
 import { Question } from '../interfaces';
 import "./QuestionsComponent.css";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import the default CSS
+
 
 const GetQuestionsComponent: React.FC<{ selectedCloud: string | null }> = ({ selectedCloud }) => {
     const [questions] = useAtom(questionsAtom);
     const [error] = useAtom(errorAtom);
     const [showQuestions, setShowQuestions] = useState(false);
     const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
-    const [questionSubmissionState] = useAtom(questionSubmissionStateAtom);
+    const [questionSubmissionState, setQuestionSubmissionState] = useAtom(questionSubmissionStateAtom);
     const [showReview, setShowReview] = useState(false);
+    const [, setSelectedOptionsPerQuestion] = useAtom(selectedOptionsPerQuestionAtom);
 
     const shuffleArray = <T,>(array: T[]): T[] => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -108,18 +112,51 @@ const GetQuestionsComponent: React.FC<{ selectedCloud: string | null }> = ({ sel
 
     const handleDelete = async (id: string, certification: string) => {
         try {
-            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/DeleteQuestion?id=${id}&certification=${encodeURIComponent(certification)}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
+            const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/api/DeleteQuestion?id=${id}&certification=${encodeURIComponent(certification)}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 }
-            });
-
-            setFilteredQuestions(prevQuestions =>
-                prevQuestions.filter(question => question.id !== id)
             );
+
+            if (response.ok) {
+                // Show a success toast notification
+                toast.success('Question successfully deleted!', {
+                    autoClose: 3000, // Automatically close after 3 seconds
+                });
+
+                setFilteredQuestions((prevQuestions) => {
+                    // Create the updated filteredQuestions array
+                    const updatedQuestions = prevQuestions.filter((question) => question.id !== id);
+
+                    // Remove the submission state for the deleted question
+                    setQuestionSubmissionState((prevState) =>
+                        prevState.filter((_, index) => prevQuestions[index]?.id !== id)
+                    );
+
+                    // Remove the selected options state for the deleted question
+                    setSelectedOptionsPerQuestion((prevState) =>
+                        prevState.filter((_, index) => prevQuestions[index]?.id !== id)
+                    );
+
+                    return updatedQuestions; // Return the new filtered questions
+                });
+            } else {
+                const errorMessage = await response.text();
+                // Show an error toast notification
+                toast.error(`Failed to delete question: ${errorMessage}`, {
+                    autoClose: 5000, // Automatically close after 5 seconds
+                });
+            }
         } catch (error) {
             console.error('Error deleting question:', error);
+            // Show a general error toast
+            toast.error('An error occurred while deleting the question. Please try again.', {
+                autoClose: 5000, // Automatically close after 5 seconds
+            });
         }
     };
 
@@ -131,7 +168,7 @@ const GetQuestionsComponent: React.FC<{ selectedCloud: string | null }> = ({ sel
                     cloud={selectedCloud}
                 />
             ) : (
-                <br/>
+                <br />
             )}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {showQuestions && filteredQuestions.length > 0 && (

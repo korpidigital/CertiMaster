@@ -1,0 +1,8 @@
+.reviewContainer {
+    width: 100%;
+}
+@media (max-width: 1000px) {
+    .reviewContainer{
+      max-width: calc((80vw) / 1);
+    }
+  }

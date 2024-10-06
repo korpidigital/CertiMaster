@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import './QuestionNavigator.css';
 import { useAtom } from 'jotai';
-import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom } from '../atoms';
+import { selectedOptionsPerQuestionAtom, questionSubmissionStateAtom, userEmailAtom } from '../atoms';
+
 import { Question } from '../interfaces';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBook, faClipboardList, faInfoCircle, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
@@ -20,6 +21,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
     const [currentIndex, setCurrentIndex] = React.useState(0);
     const [selectedOptionsPerQuestion, setSelectedOptionsPerQuestion] = useAtom(selectedOptionsPerQuestionAtom);
     const [questionSubmissionState, setQuestionSubmissionState] = useAtom(questionSubmissionStateAtom);
+    const [userEmail] = useAtom(userEmailAtom);
 
     const totalQuestions = questions.length;
     const currentQuestion = questions[currentIndex];
@@ -282,14 +284,16 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                     <div className='questionContent'>{currentQuestion.order || 'N/A'}</div>
                 </div>
             </div>
-            <div className='actionButtons'>
-                <button className='button approveButton' onClick={handleApprove} disabled={currentQuestion.approved}>
-                    {currentQuestion.approved ? 'Approved' : 'Approve'}
-                </button>
-                <button className='button deleteButton' onClick={handleDelete}>
-                    Delete
-                </button>
-            </div>
+            {userEmail === `${import.meta.env.VITE_ADMIN_EMAIL}` && (
+                <div className='actionButtons'>
+                    <button className='button approveButton' onClick={handleApprove} disabled={currentQuestion.approved}>
+                        {currentQuestion.approved ? 'Approved' : 'Approve'}
+                    </button>
+                    <button className='button deleteButton' onClick={handleDelete}>
+                        Delete
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
